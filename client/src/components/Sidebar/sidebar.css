@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap');
+
+.sidebar-container {
+  display: flex;
+  flex-direction: column;
+  width: 15%;
+  height: 100%;
+  background-color: #111827;
+  padding: 1%;
+  box-sizing: border-box;
+  justify-content: space-between;
+  padding-top: 1.5%;
+  padding-bottom: 1.5%;
+  transition: width 0.3s ease;
+}
+
+.sidebar-container.closed {
+  width: 5%;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  color: #bc43dd ;
+  font-size: 1.6em;
+  font-weight: 1000;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 4%;
+  font-family: "Doto",sans-serif;
+}
+
+.sidebar-toggle-btn {
+  display: flex;
+}
+
+.sidebar-header svg {
+  cursor: pointer;
+  display: flex;
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20%;
+  gap: 1em;
+}
+
+.sidebar-link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4%;
+  gap: 5%;
+  color: #9ca3af;
+  font-weight: 550;
+  font-size: 1em;
+  cursor: pointer;
+  justify-content: flex-start;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-link:hover {
+  background-color: #1f2937;
+  border-radius: 5px;
+  color: white;
+}
+
+.sidebar-link-active {
+  background-color: #1f2937;
+  border-radius: 5px;
+  color: white;
+}
+
+.sidebar-bottom {
+  padding-top: 8%;
+  border-top: 1px solid #2d3748;
+}
+
+.sidebar-logout-link {
+  color: #9ca3af;
+}
+
+.sidebar-link svg {
+  transition: transform 0.3s ease;
+}

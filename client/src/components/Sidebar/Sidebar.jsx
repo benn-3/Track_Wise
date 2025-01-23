@@ -1,10 +1,10 @@
 import './sidebar.css';
-import { LayoutDashboard, Users, LogOut, BookOpen, MessageCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, BookOpen, MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);  
+  const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ export default function Sidebar() {
   };
 
   const toggleSidebar = () => {
-    setIsOpen(!isOpen);  
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -24,9 +24,9 @@ export default function Sidebar() {
         <div className="sidebar-header">
           <div className="sidebar-toggle-btn" onClick={toggleSidebar}>
             {isOpen ? (
-              <ArrowLeft color="#9CA3AF" size="1.2em" />
+              <ArrowLeft color="white" size="1.2em" />
             ) : (
-              <ArrowRight color="white" size="1.2em" />
+              <ArrowRight color="#9CA3AF" size="1.2em" />
             )}
           </div>
           {isOpen && <span>TrackWise</span>}
@@ -67,7 +67,7 @@ export default function Sidebar() {
               className={`sidebar-link ${isActive('/feedbacks') ? 'sidebar-link-active' : ''}`}
               onClick={() => handleNavigation('/feedbacks')}
             >
-              <MessageCircle
+              <MessageSquare
                 color={isActive('/feedbacks') ? 'white' : '#9CA3AF'}
                 size="1.5em"
               />

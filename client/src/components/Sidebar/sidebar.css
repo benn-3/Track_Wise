@@ -3,7 +3,7 @@
 .sidebar-container {
   display: flex;
   flex-direction: column;
-  width: 15%;
+  width: 17%;
   height: 100%;
   background-color: #111827;
   padding: 1%;
@@ -24,15 +24,17 @@
 }
 
 .sidebar-header {
-  color: #bc43dd ;
+  color:white ;
   font-size: 1.6em;
-  font-weight: 1000;
+  font-weight: 750;
   display: flex;
   align-items: center;
   flex-direction: row;
   gap: 4%;
-  font-family: "Doto",sans-serif;
+
 }
+
+
 
 .sidebar-toggle-btn {
   display: flex;

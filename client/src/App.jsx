@@ -2,19 +2,22 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Sidebar from './components/Sidebar/Sidebar'
+import Header from './components/Header/Header'
 
 function App() {
   return (
     <BrowserRouter>
       <div className="App">
         <Sidebar />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-        </Routes>
+        <div className="main-container">
+          <Header />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+          </Routes>
+        </div>
       </div>
     </BrowserRouter>
   )
 }
 
-
-export default App
+export default App;

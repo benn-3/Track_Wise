@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Sidebar from './components/Sidebar/Sidebar'
 import Header from './components/Header/Header'
+import Trainers from './pages/Trainers/Trainers'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/trainers" element={<Trainers />} />
           </Routes>
         </div>
       </div>

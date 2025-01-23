@@ -12,7 +12,9 @@ body {
   height: 100%;
   width: 100%;
 }
-
+button,input{
+  font-family: "Montserrat", sans-serif;
+}
 #root {
   display: flex;
   height: 100%;

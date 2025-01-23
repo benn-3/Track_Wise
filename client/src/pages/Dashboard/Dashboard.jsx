@@ -17,6 +17,7 @@ export default function Dashboard() {
 
   const scheduleData = [
     {
+      id: 1,
       program: 'Web Development',
       trainer: 'John Doe',
       venue: 'Tech Hub - Room 101',
@@ -24,6 +25,7 @@ export default function Dashboard() {
       status: 'In Progress',
     },
     {
+      id: 2,
       program: 'App Development',
       trainer: 'Jane Smith',
       venue: 'Tech Hub - Room 102',
@@ -31,6 +33,7 @@ export default function Dashboard() {
       status: 'Completed',
     },
     {
+      id: 3,
       program: 'Cloud Computing',
       trainer: 'Mike Johnson',
       venue: 'Tech Hub - Room 103',
@@ -38,6 +41,7 @@ export default function Dashboard() {
       status: 'In Progress',
     },
     {
+      id: 4,
       program: 'Data Science',
       trainer: 'Sarah Lee',
       venue: 'Tech Hub - Room 104',
@@ -45,6 +49,7 @@ export default function Dashboard() {
       status: 'Pending',
     },
     {
+      id: 5,
       program: 'AI & ML',
       trainer: 'Robert Brown',
       venue: 'Tech Hub - Room 105',
@@ -52,6 +57,7 @@ export default function Dashboard() {
       status: 'In Progress',
     },
     {
+      id: 6,
       program: 'Blockchain',
       trainer: 'Emily Davis',
       venue: 'Tech Hub - Room 106',
@@ -180,11 +186,12 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        <div className='dashboard-schedule-container'>
-          <div className='dashboard-schedule-title'>Today&apos;s Training Schedule</div>
-          <table className='schedule-table'>
+        <div className="dashboard-schedule-container">
+          <div className="dashboard-schedule-title">Today's Training Schedule</div>
+          <table className="schedule-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Program</th>
                 <th>Trainer</th>
                 <th>Venue</th>
@@ -194,7 +201,8 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {scheduleData.map((schedule, index) => (
-                <tr key={index}>
+                <tr key={schedule.id}>
+                  <td>{schedule.id}</td> {/* Added ID field */}
                   <td>{schedule.program}</td>
                   <td>{schedule.trainer}</td>
                   <td>{schedule.venue}</td>
@@ -211,7 +219,6 @@ export default function Dashboard() {
                       {schedule.status}
                     </div>
                   </td>
-
                 </tr>
               ))}
             </tbody>

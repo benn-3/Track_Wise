@@ -28,12 +28,16 @@ const trainerSchema = new mongoose.Schema({
         required: true,
         enum: ["Male", "Female", "Other"]
     },
+    address: {
+        type: String,
+        required: true
+    },
     phone: {
         type: String,
         required: true,
         match: [/^\d{10}$/, 'Please provide a valid 10-digit phone number.'],
     },
-    expertise: {
+    specialization: {
         type: [String],
         required: true,
         default: [],

@@ -2,16 +2,16 @@
 import { useEffect, useState } from 'react';
 import { X, Check, Trash, Edit, User, Mail, Award, Clipboard, Activity } from 'lucide-react';
 
-export default function TrainerPreviewModal({ isOpen, onRequestClose, trainer, onSave, onDelete }) {
+export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, onSave, onDelete }) {
     const [formData, setFormData] = useState(trainer);
     const [isClosing, setIsClosing] = useState(false);
-    const [isEditing, setIsEditing] = useState(false); // Add state to toggle edit mode
+    const [isEditing, setIsEditing] = useState(false); 
 
     useEffect(() => {
-        setFormData(trainer); // Reset form data when modal is opened
+        setFormData(trainer); 
     }, [trainer, isOpen]);
 
-    // Function to check if the form data has changed
+    
     const hasChanges = () => {
         return JSON.stringify(formData) !== JSON.stringify(trainer);
     };
@@ -23,7 +23,7 @@ export default function TrainerPreviewModal({ isOpen, onRequestClose, trainer, o
 
     const handleSave = () => {
         onSave(formData);
-        setIsEditing(false); // After saving, switch back to view mode
+        setIsEditing(false); 
         onRequestClose();
     };
 
@@ -33,12 +33,17 @@ export default function TrainerPreviewModal({ isOpen, onRequestClose, trainer, o
     };
 
     const handleEdit = () => {
-        setIsEditing(true); // Switch to edit mode
+        setIsEditing(true); 
     };
+
+    const handleClose = ()=>{
+        setIsClosing(true);
+        onRequestClose()
+    }
 
     return (
         <div className={`trainer-preview-modal ${!isClosing ? 'open' : 'close'}`}>
-            <button className="trainer-preview-modal__close-icon" onClick={onRequestClose}>
+            <button className="trainer-preview-modal__close-icon" onClick={handleClose}>
                 <X color='#333' size={24} />
             </button>
             <h2>Trainer Details</h2>
@@ -54,7 +59,7 @@ export default function TrainerPreviewModal({ isOpen, onRequestClose, trainer, o
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter trainer's name"
-                        disabled={!isEditing} // Disable when not editing
+                        disabled={!isEditing} 
                     />
                 </div>
                 <div className="trainer-preview-modal__form-group">
@@ -133,7 +138,7 @@ export default function TrainerPreviewModal({ isOpen, onRequestClose, trainer, o
                             type="button"
                             className={`trainer-preview-modal__save-button ${!hasChanges() ? 'disabled' : ''}`}
                             onClick={handleSave}
-                            disabled={!hasChanges()} // Disable save if no changes
+                            disabled={!hasChanges()} 
                         >
                             <Check size={16} style={{ marginRight: '5px' }} />
                             Save

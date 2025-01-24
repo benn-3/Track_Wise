@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import TrainerPreviewPanel from '../../components/TrainerPreviewPanel/TrainerPreviewPanel';
-import AddTrainerPanel from '../../components/AddTrainerPanel/AddTrainerPanel'; 
+import AddTrainerPanel from '../../components/AddTrainerPanel/AddTrainerPanel';
 import './trainers.css';
+import { Search } from 'lucide-react';
 
 const initialTrainers = [
     { id: 1, name: 'John Doe', email: 'john.doe@example.com', specialization: 'Yoga', program: 'Web Development', status: 'Active', attendance: '95%' },
@@ -12,9 +13,9 @@ export default function Trainers() {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [selectedTrainer, setSelectedTrainer] = useState(null);
     const [trainers, setTrainers] = useState(initialTrainers);
-    const [addTrainerModalIsOpen, setAddTrainerModalIsOpen] = useState(false); 
+    const [addTrainerModalIsOpen, setAddTrainerModalIsOpen] = useState(false);
 
-   
+
     const handleViewMore = (trainer) => {
         setSelectedTrainer(trainer);
         setModalIsOpen(true);
@@ -37,7 +38,7 @@ export default function Trainers() {
 
     const handleAddTrainer = (newTrainer) => {
         setTrainers((prev) => [...prev, newTrainer]);
-        setAddTrainerModalIsOpen(false); 
+        setAddTrainerModalIsOpen(false);
     };
 
     return (
@@ -46,14 +47,21 @@ export default function Trainers() {
                 <div className="trainers-header-text">
                     <div className="trainers-title">Trainers</div>
                 </div>
+              <div className='trainers-header-left'>
+              <div className="trainers-searchbar-container">
+                    <Search size="1.7rem" color="#9CA3AF" />
+                    <input className="trainers-search-bar" type="text" placeholder="Search trainers, programs..." />
+                </div>
                 <div
                     className="trainers-add-button"
-                    onClick={() => setAddTrainerModalIsOpen(true)} 
+                    onClick={() => setAddTrainerModalIsOpen(true)}
                 >
                     Add Trainer
                 </div>
+              </div>
             </div>
             <div className="trainers-content">
+
                 <table className="trainers-table">
                     <thead>
                         <tr>
@@ -99,10 +107,10 @@ export default function Trainers() {
                     onDelete={handleDelete}
                 />
             )}
-        
+
             <AddTrainerPanel
                 isOpen={addTrainerModalIsOpen}
-                onRequestClose={() => setAddTrainerModalIsOpen(false)} 
+                onRequestClose={() => setAddTrainerModalIsOpen(false)}
                 onSave={handleAddTrainer}
             />
         </div>

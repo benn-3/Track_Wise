@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import { X, UserPen, CheckCircle, User, Mail, Award, Phone, Calendar } from 'lucide-react';
 

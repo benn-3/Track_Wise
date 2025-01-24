@@ -33,6 +33,11 @@ const programSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    location: {
+        type: String,
+        required: true,
+        trim: true
+    },
     trainerAssigned: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trainer',

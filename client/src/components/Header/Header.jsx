@@ -6,8 +6,8 @@ export default function Header() {
   return (
     <div className="header-container">
       <div className="header-greeting">
-        <span className='greeting-one'>Welcome back, <span className='greeting-name'>Ajay!</span></span>
-        <span className='greeting-two'>Hope you&apos;re having a great day!</span>
+        <span className='greeting-one'>Welcome back, <span className='greeting-name'>Ajay M!</span></span>
+        
       </div>
 
       <div className="header-container-left">

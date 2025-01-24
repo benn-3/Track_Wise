@@ -11,7 +11,6 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
         setFormData(trainer); 
     }, [trainer, isOpen]);
 
-    
     const hasChanges = () => {
         return JSON.stringify(formData) !== JSON.stringify(trainer);
     };
@@ -36,17 +35,22 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
         setIsEditing(true); 
     };
 
-    const handleClose = ()=>{
+    const handleClose = () => {
         setIsClosing(true);
-        onRequestClose()
-    }
+        onRequestClose();
+    };
 
     return (
         <div className={`trainer-preview-modal ${!isClosing ? 'open' : 'close'}`}>
-            <button className="trainer-preview-modal__close-icon" onClick={handleClose}>
-                <X color='#333' size={24} />
-            </button>
-            <h2>Trainer Details</h2>
+            <div className="trainer-preview-modal__header">
+                <div className="trainer-preview-modal__header-left">
+                <h2>Trainer Details</h2>    
+                </div>
+                <button className="trainer-preview-modal__close-icon" onClick={handleClose}>
+                    <X color="#333" size={24} />
+                </button>
+            </div>
+
             <form className="trainer-preview-modal__form">
                 <div className="trainer-preview-modal__form-group">
                     <label>

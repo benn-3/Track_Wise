@@ -54,11 +54,11 @@ export default function Sidebar() {
               Trainers
             </div>
             <div
-              className={`sidebar-link ${isActive('/calendar') ? 'sidebar-link-active' : ''}`}
-              onClick={() => handleNavigation('/calendar')}
+              className={`sidebar-link ${isActive('/programs') ? 'sidebar-link-active' : ''}`}
+              onClick={() => handleNavigation('/programs')}
             >
               <BookOpen
-                color={isActive('/calendar') ? 'white' : '#9CA3AF'}
+                color={isActive('/programs') ? 'white' : '#9CA3AF'}
                 size="1.5em"
               />
               Programs

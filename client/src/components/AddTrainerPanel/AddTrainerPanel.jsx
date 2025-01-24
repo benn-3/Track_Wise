@@ -12,7 +12,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
         specialization: '',
         program: '',
     });
-    
+
     const [isFormValid, setIsFormValid] = useState(false);
 
     useEffect(() => {
@@ -39,23 +39,25 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
 
     return (
         <div className={`add-trainer-panel ${isOpen ? 'add-trainer-panel--open' : 'add-trainer-panel--close'}`}>
-            <button className="add-trainer-panel__close-icon" onClick={handleClose}>
-                <X color="#333" size={24} />
-            </button>
-            <h2 className="add-trainer-panel__title">Add Trainer</h2>
+            <div className="add-trainer-panel__header">
+                <h2 className="add-trainer-panel__title">Add Trainer</h2>
+                <button className="add-trainer-panel__close-icon" onClick={handleClose}>
+                    <X color="#333" size={24} />
+                </button>
+            </div>
             <form className="add-trainer-panel__form">
                 <div className="add-trainer-panel__form-group">
                     <label>
                         <User style={{ marginRight: '8px' }} />
                         Name
                     </label>
-                    <input 
-                        type="text" 
-                        name="name" 
-                        value={formData.name} 
-                        onChange={handleChange} 
+                    <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
                         placeholder="Enter trainer's name"
-                        required 
+                        required
                     />
                 </div>
                 <div className="add-trainer-panel__form-group">
@@ -63,13 +65,13 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         <Mail style={{ marginRight: '8px' }} />
                         Email
                     </label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        value={formData.email} 
-                        onChange={handleChange} 
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
                         placeholder="Enter trainer's email"
-                        required 
+                        required
                     />
                 </div>
                 <div className="add-trainer-panel__form-group">
@@ -77,13 +79,13 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         <Phone style={{ marginRight: '8px' }} />
                         Phone
                     </label>
-                    <input 
-                        type="text" 
-                        name="phone" 
-                        value={formData.phone} 
-                        onChange={handleChange} 
+                    <input
+                        type="text"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
                         placeholder="Enter phone number"
-                        required 
+                        required
                     />
                 </div>
                 <div className="add-trainer-panel__form-group">
@@ -91,13 +93,13 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         <Calendar style={{ marginRight: '8px' }} />
                         Age
                     </label>
-                    <input 
-                        type="number" 
-                        name="age" 
-                        value={formData.age} 
-                        onChange={handleChange} 
+                    <input
+                        type="number"
+                        name="age"
+                        value={formData.age}
+                        onChange={handleChange}
                         placeholder="Enter age"
-                        required 
+                        required
                     />
                 </div>
                 <div className="add-trainer-panel__form-group">
@@ -119,20 +121,20 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         <Award style={{ marginRight: '8px' }} />
                         Specialization
                     </label>
-                    <input 
-                        type="text" 
-                        name="specialization" 
-                        value={formData.specialization} 
-                        onChange={handleChange} 
+                    <input
+                        type="text"
+                        name="specialization"
+                        value={formData.specialization}
+                        onChange={handleChange}
                         placeholder="E.g., C++, Python"
-                        required 
+                        required
                     />
                 </div>
                 <div className="add-trainer-panel__actions">
-                    <button 
-                        type="button" 
-                        className={`add-trainer-panel__save-button ${!isFormValid ? 'disabled' : ''}`} 
-                        onClick={handleSave} 
+                    <button
+                        type="button"
+                        className={`add-trainer-panel__save-button ${!isFormValid ? 'disabled' : ''}`}
+                        onClick={handleSave}
                         disabled={!isFormValid}
                     >
                         <CheckCircle size={16} style={{ marginRight: '5px' }} />

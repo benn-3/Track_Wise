@@ -45,20 +45,20 @@ export default function Trainers() {
         <div className="trainers-container">
             <div className="trainers-header">
                 <div className="trainers-header-text">
-                    <div className="trainers-title">Trainers</div>
+                    <div className="trainers-title">Manage Trainers</div>
                 </div>
-              <div className='trainers-header-left'>
-              <div className="trainers-searchbar-container">
-                    <Search size="1.7rem" color="#9CA3AF" />
-                    <input className="trainers-search-bar" type="text" placeholder="Search trainers, programs..." />
+                <div className='trainers-header-left'>
+                    <div className="trainers-searchbar-container">
+                        <Search size="1.7rem" color="#9CA3AF" />
+                        <input className="trainers-search-bar" type="text" placeholder="Search trainers, programs..." />
+                    </div>
+                    <div
+                        className="trainers-add-button"
+                        onClick={() => setAddTrainerModalIsOpen(true)}
+                    >
+                        Add Trainer
+                    </div>
                 </div>
-                <div
-                    className="trainers-add-button"
-                    onClick={() => setAddTrainerModalIsOpen(true)}
-                >
-                    Add Trainer
-                </div>
-              </div>
             </div>
             <div className="trainers-content">
 
@@ -83,7 +83,17 @@ export default function Trainers() {
                                 <td>{trainer.email}</td>
                                 <td>{trainer.specialization}</td>
                                 <td>{trainer.program}</td>
-                                <td>{trainer.status}</td>
+                                <td>
+                                    <div
+                                        className={`trainers-table-status-container ${trainer.status.toLowerCase() === "active"
+                                                ? "trainers-table-status-active"
+                                                : "trainers-table-status-inactive"
+                                            }`}
+                                    >
+                                        {trainer.status}
+                                    </div>
+                                </td>
+
                                 <td>{trainer.attendance}</td>
                                 <td>
                                     <button

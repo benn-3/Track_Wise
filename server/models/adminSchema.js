@@ -4,7 +4,8 @@ const { Schema } = mongoose;
 const adminSchema = new Schema({
     adminId:{
         type: Number,
-        required: true
+        required: true,
+        unique:true
     },
     name: {
         type: String,

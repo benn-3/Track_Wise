@@ -1,14 +1,17 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
-import { X, Check, Trash, Edit, User, Mail, Award, Clipboard, Activity } from 'lucide-react';
+import { X, Check, Trash, Edit, User, Mail, Award, Clipboard, Activity, Plus } from 'lucide-react';
+import { editTrainer, deleteTrainer } from '../../services/AdminOperations';
+import { showToast } from '../../hooks/useToast';
 
-export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, onSave, onDelete }) {
+export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, onEditTrainerSuccess, onTrainerDeleted }) {
     const [formData, setFormData] = useState(trainer);
     const [isClosing, setIsClosing] = useState(false);
-    const [isEditing, setIsEditing] = useState(false); 
+    const [isEditing, setIsEditing] = useState(false);
+    const token = localStorage.getItem('token');
+    const [newSkill, setNewSkill] = useState("");
 
     useEffect(() => {
-        setFormData(trainer); 
+        setFormData(trainer);
     }, [trainer, isOpen]);
 
     const hasChanges = () => {
@@ -20,19 +23,35 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSave = () => {
-        onSave(formData);
-        setIsEditing(false); 
+    const handleSave = async (e) => {
+        e.preventDefault();
+        const response = await editTrainer(token, formData.trainerId, formData);
+        if (response?.success) {
+            showToast("Trainer updated successfully", "success");
+            onEditTrainerSuccess();
+        } else {
+            showToast("Error updating trainer", "error");
+        }
+        setIsEditing(false);
         onRequestClose();
     };
 
-    const handleDelete = () => {
-        onDelete(trainer.id);
+    const handleDelete = async () => {
+        const sure = confirm("Are you sure you want to delete this trainer?");
+        if (sure) {
+            const response = await deleteTrainer(token, formData.trainerId);
+            if (response?.success) {
+                showToast("Trainer deleted successfully", "success");
+                onTrainerDeleted();
+            } else {
+                showToast("Error deleting trainer", "error");
+            }
+        }
         onRequestClose();
     };
 
     const handleEdit = () => {
-        setIsEditing(true); 
+        setIsEditing(true);
     };
 
     const handleClose = () => {
@@ -40,14 +59,47 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
         onRequestClose();
     };
 
+
+    const handleAddSkill = () => {
+        if (newSkill.trim() !== "") {
+            setFormData({
+                ...formData,
+                skills: [...formData.skills, newSkill]
+            });
+            setNewSkill(""); // clear input after adding skill
+        }
+    };
+
+    const handleRemoveSkill = (skill) => {
+        setFormData({
+            ...formData,
+            skills: formData.skills.filter(s => s !== skill)
+        });
+    };
+
+
+    const calculateAttendance = (attendance) => {
+        const counts = { present: 0, absent: 0, late: 0 };
+
+        attendance.forEach((entry) => {
+            if (entry.status === 'Present') counts.present++;
+            if (entry.status === 'Absent') counts.absent++;
+            if (entry.status === 'Late') counts.late++;
+        });
+
+        return counts;
+    };
+
+    const { present, absent, late } = calculateAttendance(formData.attendance || []);
+
     return (
         <div className={`trainer-preview-modal ${!isClosing ? 'open' : 'close'}`}>
             <div className="trainer-preview-modal__header">
                 <div className="trainer-preview-modal__header-left">
-                <h2>Trainer Details</h2>    
+                    <h2>Trainer Details</h2>
                 </div>
                 <button className="trainer-preview-modal__close-icon" onClick={handleClose}>
-                    <X color="#333" size={24} />
+                    <X color="#333" size={"1.5rem"} />
                 </button>
             </div>
 
@@ -63,7 +115,7 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter trainer's name"
-                        disabled={!isEditing} 
+                        disabled={!isEditing}
                     />
                 </div>
                 <div className="trainer-preview-modal__form-group">
@@ -103,58 +155,104 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                         type="text"
                         name="program"
                         value={formData.program}
-                        onChange={handleChange}
                         placeholder="Trainer's program"
-                        disabled={!isEditing}
+                        disabled={true}
                     />
                 </div>
                 <div className="trainer-preview-modal__form-group">
                     <label>
                         <Activity style={{ marginRight: '8px' }} />
-                        Status
+                        Availability
                     </label>
                     <input
                         type="text"
                         name="status"
-                        value={formData.status}
+                        value={formData.availability}
                         onChange={handleChange}
                         placeholder="Trainer's status"
                         disabled={!isEditing}
                     />
                 </div>
+
                 <div className="trainer-preview-modal__form-group">
                     <label>
                         <Clipboard style={{ marginRight: '8px' }} />
                         Attendance
                     </label>
-                    <input
-                        type="text"
-                        name="attendance"
-                        value={formData.attendance}
-                        onChange={handleChange}
-                        placeholder="Trainer's attendance"
-                        disabled={!isEditing}
-                    />
+                    <ul className="trainer-preview-panel__attendance-list">
+                        <li className="trainer-preview-panel__attendance-item">Present: {present}</li>
+                        <li className="trainer-preview-panel__attendance-item">Absent: {absent}</li>
+                        <li className="trainer-preview-panel__attendance-item">Late: {late}</li>
+                    </ul>
                 </div>
+
+                <div className="trainer-preview-modal__form-group">
+                    <label>Skills</label>
+                    <div className="trainer-preview-modal__skills-list">
+                        {formData.skills?.map((skill, index) => (
+                            <div className="trainer-preview-modal__skill-item" key={index}>
+                                <div style={{
+                                    width: "0.3rem",
+                                    aspectRatio: "1",
+                                    backgroundColor: "white",
+                                    display: "flex",
+                                    marginRight: "0.5rem",
+                                    borderRadius: "1000px"
+                                }} ></div>
+                                {skill}
+                                {isEditing && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveSkill(skill)}
+                                        style={{ marginLeft: "10px", color: "red" }}
+                                        className="trainer-preview-modal__remove-skill-button"
+                                    >
+                                        <Trash size={"0.75rem"} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    {isEditing && (
+                        <div className="trainer-preview-modal__add-skill">
+                            <input
+                                type="text"
+                                value={newSkill}
+                                onChange={(e) => setNewSkill(e.target.value)}
+                                placeholder="Add a new skill"
+                                className="trainer-preview-modal__add-skill-input"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddSkill}
+                                className="trainer-preview-modal__add-skill-button"
+                            >
+                                <Plus size={"1.2rem"} />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+
                 <div className="trainer-preview-modal__actions">
                     {isEditing ? (
                         <button
                             type="button"
                             className={`trainer-preview-modal__save-button ${!hasChanges() ? 'disabled' : ''}`}
                             onClick={handleSave}
-                            disabled={!hasChanges()} 
+                            disabled={!hasChanges()}
                         >
-                            <Check size={16} style={{ marginRight: '5px' }} />
+                            <Check size={"1rem"} style={{ marginRight: '5px' }} />
                             Save
                         </button>
                     ) : (
                         <button type="button" className="trainer-preview-modal__edit-button" onClick={handleEdit}>
-                            <Edit size={16} style={{ marginRight: '5px' }} />
+                            <Edit size={"1rem"} style={{ marginRight: '5px' }} />
                             Edit
                         </button>
                     )}
                     <button type="button" className="trainer-preview-modal__delete-button" onClick={handleDelete}>
-                        <Trash size={16} style={{ marginRight: '5px' }} />
+                        <Trash size={"1rem"} style={{ marginRight: '5px' }} />
                         Delete
                     </button>
                 </div>

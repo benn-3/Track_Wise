@@ -42,6 +42,10 @@ const trainerSchema = new mongoose.Schema({
         required: true,
         default: [],
     },
+    skills: {
+        type: [String],
+        default: [],
+    },
     programsAssigned: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Program' }],
         default: [],
@@ -60,10 +64,10 @@ const trainerSchema = new mongoose.Schema({
         }],
         default: [],
     },
-
-    status: {
+    availability: {
         type: String,
-        enum: ["Active", "Inactive"]
+        enum: ["Assigned", "Not Assigned"],
+        default: "Not Assigned",
     },
     createdAt: {
         type: Date,
@@ -80,9 +84,6 @@ trainerSchema.pre('save', function (next) {
     next();
 });
 
-trainerSchema.index({
-    trainerId: 1
-})
 
 const Trainer = mongoose.model('Trainer', trainerSchema);
 

@@ -3,6 +3,26 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/adminSchema");
 const Counter = require("../models/counterSchema");
 const { createToken } = require("../utils/jwt");
+const { Op } = require('sequelize');
+
+
+const getAdmin = async (req, res) => {
+    try {
+        const { adminId } = req.query;
+
+        const admin = await Admin.findOne({ adminId }).select('-password'); // Exclude the password field
+
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        return res.status(200).json({ admin });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 
 const adminSignup = async (req, res) => {
     try {
@@ -76,16 +96,14 @@ const adminSignin = async (req, res) => {
 
 const addTrainer = async (req, res) => {
     try {
-        const { name, email, phone, age, gender, specialization, address } = req.body;
+        const { name, email, phone, age, gender, specialization, skills, address } = req.body;
 
-
-        if (!name || !email || !phone || !age || !gender || !specialization || !address) {
+        if (!name || !email || !phone || !age || !gender || !specialization || !address || !skills) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required."
             });
         }
-
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^[0-9]{10}$/;
@@ -117,16 +135,26 @@ const addTrainer = async (req, res) => {
         }
 
 
+        const counter = await Counter.findByIdAndUpdate(
+            { _id: 'trainerId' },
+            { $inc: { sequence_value: 1 } },
+            { new: true, upsert: true }
+        );
+
+        const trainerId = counter.sequence_value;
+
+
         const trainer = await Trainer.create({
+            trainerId,
             name,
             email,
             phone,
             age,
             gender,
             specialization,
+            skills,
             address,
         });
-
 
         return res.status(201).json({
             success: true,
@@ -136,7 +164,6 @@ const addTrainer = async (req, res) => {
     } catch (error) {
         console.error("Error adding trainer:", error);
 
-
         return res.status(500).json({
             success: false,
             message: "An error occurred while adding the trainer. Please try again.",
@@ -144,9 +171,123 @@ const addTrainer = async (req, res) => {
     }
 };
 
+const getAllTrainers = async (req, res) => {
+    try {
+        const trainers = await Trainer.find();
+        res.status(200).json({
+            success: true,
+            message: "Trainers retrieved successfully.",
+            trainers,
+        });
+    } catch (error) {
+        console.error("Error fetching trainers:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while fetching trainers.",
+        });
+    }
+};
+
+
+const getTrainerById = async (req, res) => {
+    try {
+        const { trainerId } = req.params;
+        const trainer = await Trainer.findOne({ trainerId });
+        if (!trainer) {
+            return res.status(404).json({
+                success: false,
+                message: "Trainer not found.",
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Trainer retrieved successfully.",
+            trainer,
+        });
+    } catch (error) {
+        console.error("Error fetching trainer:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while fetching the trainer.",
+        });
+    }
+};
+
+
+const updateTrainer = async (req, res) => {
+    try {
+
+        const {
+            trainerId,
+            formData
+
+        } = req.body;
+
+
+        formData.updatedAt = Date.now();
+
+        const trainer = await Trainer.findOneAndUpdate({ trainerId }, formData, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!trainer) {
+            return res.status(404).json({
+                success: false,
+                message: "Trainer not found.",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Trainer updated successfully.",
+            trainer,
+        });
+    } catch (error) {
+        console.error("Error updating trainer:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while updating the trainer.",
+        });
+    }
+};
+
+
+const deleteTrainer = async (req, res) => {
+    try {
+
+        const { trainerId } = req.query;
+
+        const trainer = await Trainer.findOneAndDelete({ trainerId });
+        if (!trainer) {
+            return res.status(404).json({
+                success: false,
+                message: "Trainer not found.",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Trainer deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting trainer:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while deleting the trainer.",
+        });
+    }
+};
+
+
 
 module.exports = {
     adminSignin,
     adminSignup,
-    addTrainer
+    addTrainer,
+    getAllTrainers,
+    getTrainerById,
+    updateTrainer,
+    deleteTrainer,
+    getAdmin
 }

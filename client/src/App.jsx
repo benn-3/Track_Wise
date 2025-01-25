@@ -10,8 +10,10 @@ import { useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { checkTokenIsValid } from './services/TokenOperations';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAuthState } from '../redux/actions/authActions';
-import { Mosaic } from "react-loading-indicators";
+import { setAdmin, setAuthState } from './redux/actions/authActions';
+import Loader from './components/Loader/Loader';
+import Feedbacks from './pages/Feedback/Feedbacks';
+import { getAdmin } from './services/AdminOperations';
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -25,7 +27,13 @@ function App() {
         try {
           const response = await checkTokenIsValid(token);
           if (response.success) {
-            dispatch(setAuthState(true));
+            if (response.decoded.adminId) {
+              await getAdmin(token, response.decoded.adminId, dispatch)
+              dispatch(setAuthState(true, "admin"));
+            }
+            else if (response.decoded.trainerId) {
+              dispatch(setAuthState(true, "trainer"));
+            }
           } else {
             dispatch(setAuthState(false));
             localStorage.removeItem('Token');
@@ -46,18 +54,7 @@ function App() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          width: '100vw',
-          zIndex: "100000"
-        }}
-      >
-        <Mosaic color="#4635B1" size="large" text="" textColor="" />
-      </div>
+      <Loader />
     );
   }
 
@@ -73,6 +70,7 @@ function App() {
               <Route path="/admin" element={<Dashboard />} />
               <Route path="/trainers" element={<Trainers />} />
               <Route path="/programs" element={<Programs />} />
+              <Route path="/feedbacks" element={<Feedbacks />} />
               <Route path="*" element={<Navigate to={"/admin"} />} />
             </Routes>
           </div>

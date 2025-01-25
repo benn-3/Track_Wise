@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Mail, Lock, User, Phone } from "lucide-react";
 import { adminSignin, adminSignup } from "../../services/AdminOperations";
-import { toast } from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setAuthState } from "../../../redux/actions/authActions";
+import { setAuthState } from "../../redux/actions/authActions";
+import { showToast } from "../../hooks/useToast";
 
 export default function AdminAuthCard() {
     const [isSignup, setIsSignup] = useState(false);
@@ -24,13 +24,6 @@ export default function AdminAuthCard() {
     const navigation = useNavigate()
     const dispatch = useDispatch()
 
-    const showToast = (message, type) => {
-        toast[type](
-            <span style={{ fontWeight: 'bold' }}>
-                {message}
-            </span>
-        );
-    };
 
     const handleSignupChange = (e) => {
         const { name, value } = e.target;

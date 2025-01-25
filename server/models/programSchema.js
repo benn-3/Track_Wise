@@ -87,11 +87,6 @@ programSchema.pre('save', function (next) {
     next();
 });
 
-programSchema.index({
-    programId: 1,
-    startDate: 1,
-    programStatus: 1,
-});
 
 const Program = mongoose.model('Program', programSchema);
 

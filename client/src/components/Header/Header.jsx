@@ -1,13 +1,23 @@
 import './Header.css';
 import { Bell } from 'lucide-react';
 import ProfileIcon from '../../assets/icons/profile.png';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 export default function Header() {
+
+
+  const user = useSelector((state) => state.auth.user)
+
+  useEffect(() => {
+    console.log(user)
+  }, [user])
+
   return (
     <div className="header-container">
       <div className="header-greeting">
         <span className='greeting-one'>Welcome back, <span className='greeting-name'>Ajay M!</span></span>
-        
+
       </div>
 
       <div className="header-container-left">

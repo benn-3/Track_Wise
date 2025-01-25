@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, LogOut, BookOpen, MessageSquare, ArrowLeft, Arr
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setAuthState } from '../../../redux/actions/authActions';
+import { setAuthState } from '../../redux/actions/authActions';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);

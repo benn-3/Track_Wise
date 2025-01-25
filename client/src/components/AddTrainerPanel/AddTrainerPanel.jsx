@@ -1,8 +1,10 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { X, UserPen, CheckCircle, User, Mail, Award, Phone, Calendar, MapPin } from 'lucide-react';
+import { X, UserPen, CheckCircle, User, Mail, Award, Phone, Calendar, MapPin, Plus, Trash } from 'lucide-react';
 import { handleAddTrainer } from '../../services/AdminOperations';
+import { showToast } from '../../hooks/useToast';
 
-export default function AddTrainerPanel({ isOpen, onRequestClose }) {
+export default function AddTrainerPanel({ isOpen, onRequestClose, onAddTrainerSuccess }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -11,17 +13,17 @@ export default function AddTrainerPanel({ isOpen, onRequestClose }) {
         gender: '',
         specialization: '',
         address: '',
+        skills: []
     });
 
-    const [errors, setErrors] = useState({}); 
+    const [errors, setErrors] = useState({});
+    const [skillInput, setSkillInput] = useState('');
 
     const validateForm = () => {
         const newErrors = {};
 
-        
         if (!formData.name.trim()) newErrors.name = 'Name is required.';
 
-        
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email.trim()) {
             newErrors.email = 'Email is required.';
@@ -29,44 +31,84 @@ export default function AddTrainerPanel({ isOpen, onRequestClose }) {
             newErrors.email = 'Invalid email format.';
         }
 
-        
-        const phoneRegex = /^[0-9]{10}$/; 
+        const phoneRegex = /^[0-9]{10}$/;
         if (!formData.phone.trim()) {
             newErrors.phone = 'Phone number is required.';
         } else if (!phoneRegex.test(formData.phone)) {
             newErrors.phone = 'Invalid phone number.';
         }
 
-        
         if (!formData.age.trim()) newErrors.age = 'Age is required.';
         if (!formData.gender.trim()) newErrors.gender = 'Gender is required.';
-        if (!formData.specialization.trim())
-            newErrors.specialization = 'Specialization is required.';
+        if (!formData.specialization.trim()) newErrors.specialization = 'Specialization is required.';
         if (!formData.address.trim()) newErrors.address = 'Address is required.';
+
+
+        if (formData.skills.length === 0) {
+            newErrors.skills = 'At least one skill is required.';
+        }
 
         setErrors(newErrors);
 
-        return Object.keys(newErrors).length === 0; 
+        return Object.keys(newErrors).length === 0;
+    };
+
+
+    const handleSkillInputChange = (e) => setSkillInput(e.target.value);
+
+    const addSkill = () => {
+        if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
+            setFormData((prev) => ({
+                ...prev,
+                skills: Array.isArray(prev.skills) ? [...prev.skills, skillInput.trim()] : [skillInput.trim()],
+            }));
+            setSkillInput('');
+        }
+    };
+
+    const removeSkill = (index) => {
+        setFormData((prev) => ({
+            ...prev,
+            skills: prev.skills.filter((_, i) => i !== index),
+        }));
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: '' })); 
+        setErrors((prev) => ({ ...prev, [name]: '' }));
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return; 
+        if (!validateForm()) return;
 
         console.log('Saving Trainer Data:', formData);
 
         try {
             const response = await handleAddTrainer(formData);
 
-            if (response) {
+            if (response.success) {
+                onAddTrainerSuccess()
                 console.log('Trainer added:', response);
+                showToast("New Trainer added successfully.", "success");
+
+
+                setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    age: '',
+                    gender: '',
+                    specialization: '',
+                    address: '',
+                    skills: []
+                });
+            }
+            else {
+                console.log('Error adding trainer:', response);
+                showToast("Error adding trainer.", "error");
             }
 
             onRequestClose();
@@ -164,21 +206,6 @@ export default function AddTrainerPanel({ isOpen, onRequestClose }) {
                 </div>
                 <div className="add-trainer-panel__form-group">
                     <label>
-                        <Award style={{ marginRight: '8px' }} />
-                        Specialization
-                    </label>
-                    <input
-                        type="text"
-                        name="specialization"
-                        value={formData.specialization}
-                        onChange={handleChange}
-                        placeholder="E.g., C++, Python"
-                        required
-                    />
-                    {errors.specialization && <span className="error-text">{errors.specialization}</span>}
-                </div>
-                <div className="add-trainer-panel__form-group">
-                    <label>
                         <MapPin style={{ marginRight: '8px' }} />
                         Address
                     </label>
@@ -192,13 +219,74 @@ export default function AddTrainerPanel({ isOpen, onRequestClose }) {
                     />
                     {errors.address && <span className="error-text">{errors.address}</span>}
                 </div>
+                <div className="add-trainer-panel__form-group">
+                    <label>
+                        <Award style={{ marginRight: '8px' }} />
+                        Specialization
+                    </label>
+                    <select
+                        name="specialization"
+                        value={formData.specialization}
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="" disabled>Select specialization</option>
+                        {[
+                            'Web Development',
+                            'Blockchain',
+                            'Artificial Intelligence',
+                            'Data Science',
+                            'Cybersecurity',
+                            'Cloud Computing',
+                            'Internet of Things (IoT)',
+                            'Machine Learning',
+                            'DevOps'
+                        ].map((specialization, index) => (
+                            <option key={index} value={specialization}>
+                                {specialization}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.specialization && <span className="error-text">{errors.specialization}</span>}
+                </div>
+
+                <div className="add-trainer-panel__form-group">
+                    <label>
+                        <Award style={{ marginRight: '8px' }} />
+                        Skills
+                    </label>
+                    <div className="add-trainer-panel__skills-input">
+                        <input
+                            type="text"
+                            value={skillInput}
+                            onChange={handleSkillInputChange}
+                            placeholder="Enter a skill"
+                        />
+                        <button type="button" onClick={addSkill}>
+                            <Plus size={"1.2rem"} />
+                        </button>
+                    </div>
+                    {errors.skills && <span className="error-text">{errors.skills}</span>}
+                    <ul className="add-trainer-panel__skills-list">
+                        {Array.isArray(formData.skills) && formData.skills.map((skill, index) => (
+                            <li key={index}>
+                                {skill}
+                                <button style={{
+                                    marginLeft: "1.5rem"
+                                }} className='skills-trash-button' type="button" onClick={() => removeSkill(index)}>
+                                    <Trash size={"1rem"} />
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
                 <div className="add-trainer-panel__actions">
                     <button
                         type="button"
                         className="add-trainer-panel__save-button"
                         onClick={handleSave}
                     >
-                        <CheckCircle size={16} style={{ marginRight: '5px' }} />
+                        <CheckCircle size={"1rem"} style={{ marginRight: '5px' }} />
                         Save
                     </button>
                 </div>

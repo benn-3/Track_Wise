@@ -1,3 +1,4 @@
+const Trainer = require("../models/trainerSchema");
 const bcrypt = require("bcryptjs");
 const Admin = require("../models/adminSchema");
 const Counter = require("../models/counterSchema");
@@ -72,4 +73,80 @@ const adminSignin = async (req, res) => {
     }
 };
 
-module.exports = { adminSignup, adminSignin };
+
+const addTrainer = async (req, res) => {
+    try {
+        const { name, email, phone, age, gender, specialization, address } = req.body;
+
+
+        if (!name || !email || !phone || !age || !gender || !specialization || !address) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required."
+            });
+        }
+
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^[0-9]{10}$/;
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format."
+            });
+        }
+
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({
+                success: false,
+                message: "Phone number must be 10 digits."
+            });
+        }
+
+
+        const existingTrainer = await Trainer.findOne({
+            where: { [Op.or]: [{ email }, { phone }] },
+        });
+
+        if (existingTrainer) {
+            return res.status(400).json({
+                success: false,
+                message: "A trainer with the provided email or phone number already exists.",
+            });
+        }
+
+
+        const trainer = await Trainer.create({
+            name,
+            email,
+            phone,
+            age,
+            gender,
+            specialization,
+            address,
+        });
+
+
+        return res.status(201).json({
+            success: true,
+            message: "Trainer added successfully.",
+            trainer,
+        });
+    } catch (error) {
+        console.error("Error adding trainer:", error);
+
+
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while adding the trainer. Please try again.",
+        });
+    }
+};
+
+
+module.exports = {
+    adminSignin,
+    adminSignup,
+    addTrainer
+}

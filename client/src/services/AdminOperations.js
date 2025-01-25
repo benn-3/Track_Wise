@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const API_URL = 'http://localhost:7000/api/auth';
+const API_URL = 'http://localhost:7000/api/admin';
+
 
 export const adminSignup = async (signupData) => {
     try {
         const response = await axios.post(`${API_URL}/admin-signup`, signupData);
-        if (response.status === 200) {  
+        if (response.status === 200) {
             return { success: true, data: response.data };
         }
     } catch (error) {
@@ -32,5 +33,15 @@ export const adminSignin = async (loginData) => {
         } else {
             return { success: false, message: 'Network error or timeout. Please check your connection and try again.' };
         }
+    }
+};
+
+export const handleAddTrainer = async (formData) => {
+    try {
+        const response = await axios.post(`${API_URL}/add-trainer`, formData);
+        return response.data;
+    } catch (error) {
+        console.error("Error adding trainer:", error);
+        return { error: "An error occurred. Please try again." };
     }
 };

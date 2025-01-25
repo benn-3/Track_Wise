@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Sidebar from './components/Sidebar/Sidebar';
 import Header from './components/Header/Header';
@@ -16,8 +16,7 @@ import { Mosaic } from "react-loading-indicators";
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true); 
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -25,7 +24,7 @@ function App() {
       if (token) {
         try {
           const response = await checkTokenIsValid(token);
-          if (response?.decoded) {
+          if (response.success) {
             dispatch(setAuthState(true));
           } else {
             dispatch(setAuthState(false));
@@ -39,19 +38,11 @@ function App() {
       } else {
         dispatch(setAuthState(false));
       }
-      setLoading(false); 
+      setLoading(false);
     };
 
     checkToken();
   }, [dispatch]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/admin'); 
-    } else {
-      navigate('/login'); 
-    }
-  }, [isAuthenticated, navigate]);
 
   if (loading) {
     return (
@@ -62,6 +53,7 @@ function App() {
           alignItems: 'center',
           height: '100vh',
           width: '100vw',
+          zIndex: "100000"
         }}
       >
         <Mosaic color="#4635B1" size="large" text="" textColor="" />
@@ -70,30 +62,30 @@ function App() {
   }
 
   return (
- 
-      <div className="App">
-        <Toaster />
-        {isAuthenticated ? (
-          <>
-            <Sidebar />
-            <div className="main-container">
-              <Header />
-              <Routes>
-                <Route path="/admin" element={<Dashboard />} />
-                <Route path="/trainers" element={<Trainers />} />
-                <Route path="/programs" element={<Programs />} />
-              </Routes>
-            </div>
-          </>
-        ) : (
-          <Routes>
-            <Route path="/login" element={<AuthPage />} />
-            <Route path="/signup" element={<AuthPage />} />
-            <Route path="*" element={<Navigate to="/login" />} />
-          </Routes>
-        )}
-      </div>
-  
+    <div className="App">
+      <Toaster />
+      {isAuthenticated ? (
+        <>
+          <Sidebar />
+          <div className="main-container">
+            <Header />
+            <Routes>
+              <Route path="/admin" element={<Dashboard />} />
+              <Route path="/trainers" element={<Trainers />} />
+              <Route path="/programs" element={<Programs />} />
+              <Route path="*" element={<Navigate to={"/admin"} />} />
+            </Routes>
+          </div>
+        </>
+      ) : (
+        <Routes>
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/signup" element={<AuthPage />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+
+        </Routes>
+      )}
+    </div>
   );
 }
 

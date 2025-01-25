@@ -435,12 +435,31 @@ margin: 0;
   flex-direction: column;
 }
 
+.add-trainer-panel__form-group textarea {
+  width: 100%;
+  padding: 10px; 
+  font-size:1rem; 
+  border-radius: 8px; 
+  outline: none; 
+  background-color: #f7f7f7;
+  font-family: "Montserrat";
+  border: none;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s;
+}
+
+.add-trainer-panel__form-group textarea:focus {
+  border-color: #007bff; 
+
+}
+
 .add-trainer-panel__form-group label {
   font-size: 1rem;
   margin-bottom: 0.6rem;
   color: #555;
   display: flex;
   align-items: center;
+  transition: border-color 0.3s;
 }
 
 .add-trainer-panel__form-group input {
@@ -479,4 +498,10 @@ margin: 0;
 
 .add-trainer-panel__save-button:hover {
   background-color: #0f9f77;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
 }

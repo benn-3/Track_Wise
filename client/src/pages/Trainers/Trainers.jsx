@@ -16,6 +16,7 @@ export default function Trainers() {
     const [addTrainerModalIsOpen, setAddTrainerModalIsOpen] = useState(false);
 
 
+
     const handleViewMore = (trainer) => {
         setSelectedTrainer(trainer);
         setModalIsOpen(true);
@@ -26,20 +27,6 @@ export default function Trainers() {
         setSelectedTrainer(null);
     };
 
-    const handleSave = (updatedTrainer) => {
-        setTrainers((prev) => prev.map((trainer) =>
-            trainer.id === updatedTrainer.id ? updatedTrainer : trainer
-        ));
-    };
-
-    const handleDelete = (id) => {
-        setTrainers((prev) => prev.filter((trainer) => trainer.id !== id));
-    };
-
-    const handleAddTrainer = (newTrainer) => {
-        setTrainers((prev) => [...prev, newTrainer]);
-        setAddTrainerModalIsOpen(false);
-    };
 
     return (
         <div className="trainers-container">
@@ -54,7 +41,7 @@ export default function Trainers() {
                     </div>
                     <div
                         className="trainers-add-button"
-                        onClick={() => setAddTrainerModalIsOpen(true)}
+                        onClick={() => setAddTrainerModalIsOpen(true)} required
                     >
                         Add Trainer
                     </div>
@@ -86,8 +73,8 @@ export default function Trainers() {
                                 <td>
                                     <div
                                         className={`trainers-table-status-container ${trainer.status.toLowerCase() === "active"
-                                                ? "trainers-table-status-active"
-                                                : "trainers-table-status-inactive"
+                                            ? "trainers-table-status-active"
+                                            : "trainers-table-status-inactive"
                                             }`}
                                     >
                                         {trainer.status}
@@ -113,15 +100,12 @@ export default function Trainers() {
                     isOpen={modalIsOpen}
                     onRequestClose={closeModal}
                     trainer={selectedTrainer}
-                    onSave={handleSave}
-                    onDelete={handleDelete}
                 />
             )}
 
             <AddTrainerPanel
                 isOpen={addTrainerModalIsOpen}
                 onRequestClose={() => setAddTrainerModalIsOpen(false)}
-                onSave={handleAddTrainer}
             />
         </div>
     );

@@ -9,9 +9,9 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname.startsWith(path);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -23,11 +23,10 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     localStorage.removeItem('Token');
-    console.log("Logged Out")
-    dispatch(setAuthState(false))
+    console.log("Logged Out");
+    dispatch(setAuthState(false));
     navigate('/login');
-
-  }
+  };
 
   return (
     <div className={`sidebar-container ${isOpen ? 'open' : 'closed'}`}>
@@ -90,13 +89,10 @@ export default function Sidebar() {
       {isOpen && (
         <div className="sidebar-bottom">
           <div
-            className={`sidebar-link sidebar-logout-link ${isActive('/logout') ? 'sidebar-link-active' : ''}`}
+            className={`sidebar-link sidebar-logout-link`}
             onClick={handleLogout}
           >
-            <LogOut
-              color={isActive('/logout') ? 'white' : '#9CA3AF'}
-              size="1.5em"
-            />
+            <LogOut color="#9CA3AF" size="1.5em" />
             Log Out
           </div>
         </div>

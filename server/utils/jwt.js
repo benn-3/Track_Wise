@@ -8,26 +8,26 @@ const createToken = (payload, expiresIn = "1h") => {
 
 const verifyToken = async (req, res) => {
   try {
-    const token = req.headers["authorization"]?.split(" ")[1]; 
+    const token = req.headers["authorization"]?.split(" ")[1];
 
     console.log("Token received:", token);
 
     if (!token) {
-      return res.status(400).json({ message: "No token provided" });
+      return res.status(400).json({ success: false, message: "No token provided" });
     }
 
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
       if (err) {
-        return res.status(401).json({ message: "Invalid or expired token" });
-      }
+        return res.status(401).json({ success: false, message: "Invalid or expired token" });
+      } 
 
       console.log("Token is valid:", decoded);
 
-      res.status(200).json({ message: "Token is valid", decoded });
+      res.status(200).json({ success: true, message: "Token is valid", decoded });
     });
   } catch (error) {
     console.error("Error while checking token:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 

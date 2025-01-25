@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Mail, Lock, User, Phone } from "lucide-react";
-import { adminSignin, adminSignup } from "../../services/AuthOperations";
+import { adminSignin, adminSignup } from "../../services/AdminOperations";
 import { toast } from 'react-hot-toast';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";

@@ -1,8 +1,8 @@
-/* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
-import { X, UserPen, CheckCircle, User, Mail, Award, Phone, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { X, UserPen, CheckCircle, User, Mail, Award, Phone, Calendar, MapPin } from 'lucide-react';
+import { handleAddTrainer } from '../../services/AdminOperations';
 
-export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
+export default function AddTrainerPanel({ isOpen, onRequestClose }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -10,30 +10,73 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
         age: '',
         gender: '',
         specialization: '',
-        program: '',
+        address: '',
     });
 
-    const [isFormValid, setIsFormValid] = useState(false);
+    const [errors, setErrors] = useState({}); 
 
-    useEffect(() => {
-        // Check if all fields are filled
-        const isValid = Object.values(formData).every((field) => field.trim() !== '');
-        setIsFormValid(isValid);
-    }, [formData]);
+    const validateForm = () => {
+        const newErrors = {};
+
+        
+        if (!formData.name.trim()) newErrors.name = 'Name is required.';
+
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim()) {
+            newErrors.email = 'Email is required.';
+        } else if (!emailRegex.test(formData.email)) {
+            newErrors.email = 'Invalid email format.';
+        }
+
+        
+        const phoneRegex = /^[0-9]{10}$/; 
+        if (!formData.phone.trim()) {
+            newErrors.phone = 'Phone number is required.';
+        } else if (!phoneRegex.test(formData.phone)) {
+            newErrors.phone = 'Invalid phone number.';
+        }
+
+        
+        if (!formData.age.trim()) newErrors.age = 'Age is required.';
+        if (!formData.gender.trim()) newErrors.gender = 'Gender is required.';
+        if (!formData.specialization.trim())
+            newErrors.specialization = 'Specialization is required.';
+        if (!formData.address.trim()) newErrors.address = 'Address is required.';
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0; 
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: '' })); 
     };
 
-    const handleSave = () => {
-        if (isFormValid) {
-            onSave(formData);
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) return; 
+
+        console.log('Saving Trainer Data:', formData);
+
+        try {
+            const response = await handleAddTrainer(formData);
+
+            if (response) {
+                console.log('Trainer added:', response);
+            }
+
             onRequestClose();
+        } catch (error) {
+            console.error('Error while saving trainer:', error);
         }
     };
 
     const handleClose = () => {
+        console.log('Panel closed');
         onRequestClose();
     };
 
@@ -59,6 +102,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         placeholder="Enter trainer's name"
                         required
                     />
+                    {errors.name && <span className="error-text">{errors.name}</span>}
                 </div>
                 <div className="add-trainer-panel__form-group">
                     <label>
@@ -73,6 +117,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         placeholder="Enter trainer's email"
                         required
                     />
+                    {errors.email && <span className="error-text">{errors.email}</span>}
                 </div>
                 <div className="add-trainer-panel__form-group">
                     <label>
@@ -87,6 +132,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         placeholder="Enter phone number"
                         required
                     />
+                    {errors.phone && <span className="error-text">{errors.phone}</span>}
                 </div>
                 <div className="add-trainer-panel__form-group">
                     <label>
@@ -101,6 +147,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         placeholder="Enter age"
                         required
                     />
+                    {errors.age && <span className="error-text">{errors.age}</span>}
                 </div>
                 <div className="add-trainer-panel__form-group">
                     <label>
@@ -108,13 +155,12 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         Gender
                     </label>
                     <select name="gender" value={formData.gender} onChange={handleChange} required>
-                        <option value="" disabled>
-                            Select gender
-                        </option>
+                        <option value="" disabled>Select gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                     </select>
+                    {errors.gender && <span className="error-text">{errors.gender}</span>}
                 </div>
                 <div className="add-trainer-panel__form-group">
                     <label>
@@ -129,13 +175,28 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onSave }) {
                         placeholder="E.g., C++, Python"
                         required
                     />
+                    {errors.specialization && <span className="error-text">{errors.specialization}</span>}
+                </div>
+                <div className="add-trainer-panel__form-group">
+                    <label>
+                        <MapPin style={{ marginRight: '8px' }} />
+                        Address
+                    </label>
+                    <textarea
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="Enter address"
+                        rows="3"
+                        required
+                    />
+                    {errors.address && <span className="error-text">{errors.address}</span>}
                 </div>
                 <div className="add-trainer-panel__actions">
                     <button
                         type="button"
-                        className={`add-trainer-panel__save-button ${!isFormValid ? 'disabled' : ''}`}
+                        className="add-trainer-panel__save-button"
                         onClick={handleSave}
-                        disabled={!isFormValid}
                     >
                         <CheckCircle size={16} style={{ marginRight: '5px' }} />
                         Save

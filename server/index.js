@@ -14,10 +14,10 @@ app.use(express.json())
 
 connectToDB()
 
-const authRoutes = require("./routes/authRoutes")
 const tokenRoutes = require("./routes/tokenRoutes")
+const adminRoutes = require("./routes/adminRoutes")
 
-app.use("/api/auth",authRoutes)
+app.use("/api/admin",adminRoutes)
 app.use("/api/token",tokenRoutes)
 
 

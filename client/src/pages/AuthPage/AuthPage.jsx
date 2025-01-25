@@ -6,7 +6,7 @@ import TrainerAuthCard from "../../components/TrainerAuthCard/TrainerAuthCard";
 import AdminAuthCard from "../../components/AdminAuthCard/AdminAuthCard";
 
 export default function AuthPage() {
-    const [isTrainer, setIsTrainer] = useState(true);
+    const [isTrainer, setIsTrainer] = useState(false);
 
     const toggleRole = () => {
         setIsTrainer(!isTrainer);
@@ -17,49 +17,30 @@ export default function AuthPage() {
             <div className="authpage-container-grid" />
             <div className="role-switch-container">
                 <div
-                    className={`trainer-switch-button ${isTrainer ? "active" : ""}`}
-                    onClick={toggleRole}
-                >
-                    Trainer
-                </div>
-                <div
                     className={`admin-switch-button ${!isTrainer ? "active" : ""}`}
                     onClick={toggleRole}
                 >
                     Admin
+                </div>
+                <div
+                    className={`trainer-switch-button ${isTrainer ? "active" : ""}`}
+                    onClick={toggleRole}
+                >
+                    Trainer
                 </div>
             </div>
             <div className="authpage-content">
                 <div
                     className={`authpage-left ${isTrainer ? "trainer-bg" : "admin-bg"}`}
                 >
-                    {isTrainer ? (
-                        <div className="authpage-left-trainer-top">
-                            <img
-                                src={TrainerIllustration}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "contain",
-                                }}
-                                className={isTrainer ? "trainer-illus-active" : ""}
-                                alt="Trainer Illustration"
-                            />
-                        </div>
-                    ) : (
-                        <div className="authpage-left-admin-top">
-                            <img
-                                src={AdminIllustration}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "contain",
-                                }}
-                                className={!isTrainer ? "admin-illus-active" : ""}
-                                alt="Admin Illustration"
-                            />
-                        </div>
-                    )}
+                    <div className={isTrainer ? "authpage-left-trainer-top" : "authpage-left-admin-top"}>
+                        <img
+                            loading="lazy"
+                            src={isTrainer ? TrainerIllustration : AdminIllustration}
+                            className={isTrainer ? "trainer-illus-active" : "admin-illus-active"}
+                            alt={isTrainer ? "Trainer Illustration" : "Admin Illustration"}
+                        />
+                    </div>
                     <div className="authpage-left-bottom">
                         <div className="authpage-left-title">
                             {isTrainer ? "Shape Futures" : "Lead the Way"}
@@ -71,12 +52,8 @@ export default function AuthPage() {
                         </div>
                     </div>
                 </div>
-                <div className="authpage-right">       
-                        {isTrainer ? (
-                            <TrainerAuthCard />
-                        ) : (
-                            <AdminAuthCard />
-                        )}
+                <div className="authpage-right">
+                    {isTrainer ? <TrainerAuthCard /> : <AdminAuthCard />}
                 </div>
             </div>
         </div>

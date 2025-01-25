@@ -1,12 +1,13 @@
 .authpage-container {
   display: flex;
   flex: 1;
-  min-height: 100vh;
   background-color: white;
-  border-radius: 30px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   justify-content: center;
   align-items: center;
+  padding: 5rem;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 .authpage-container-grid {
@@ -24,7 +25,7 @@
   mask-composite: intersect;
   -webkit-mask-image: linear-gradient(0deg, white, rgba(255, 255, 255, 0.6));
   -webkit-mask-composite: source-in;
-  z-index: 0;
+  z-index: 1;
 }
 
 .authpage-content {
@@ -33,19 +34,23 @@
   align-items: center;
   justify-content: space-between;
   z-index: 1;
+  width: 100%;
+  height: 100%;
+  flex: 1;
   gap: 3rem;
+  min-width: 1000px;
 }
 
 .authpage-left {
   display: flex;
-  width: 40rem;
-  height: 35rem;
+  height: 100%;
   border-radius: 30px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   justify-content: space-evenly;
-  transition: box-shadow 0.3s ease-in-out;
+  transition: transform 0.8s ease-in-out, box-shadow 0.3s ease-in-out;
   flex-direction: column;
   padding: 2rem;
+  width: 40%;
 }
 
 .authpage-left.trainer-bg {
@@ -84,8 +89,8 @@
 
 .authpage-right {
   display: flex;
-  width: 40rem;
-  height: 35rem;
+  flex: 1;
+  height: 100%;
   background-color: white;
   border-radius: 30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -101,8 +106,8 @@
   padding: 0.7rem;
   background-color: #f8f9fa;
   position: absolute;
-  top: 2.5vw;
-  right: 12vw;
+  top: 3vw;
+  right: 11vw;
   border-radius: 45px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: box-shadow 0.3s ease-in-out;
@@ -307,9 +312,9 @@
   justify-content: space-evenly;
 }
 
-.authpage-right-admin-form.grid-layout {
+.authpage-right-admin-form-groups.grid-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
@@ -402,4 +407,42 @@
   color: #0000ff;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.authpage-left img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.trainer-illus-active {
+  animation: fadeInTrainer 1s ease-in-out;
+}
+
+.admin-illus-active {
+  animation: fadeInAdmin 1s ease-in-out;
+}
+
+@keyframes fadeInTrainer {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInAdmin {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

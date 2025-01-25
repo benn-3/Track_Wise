@@ -2,11 +2,14 @@ import './sidebar.css';
 import { LayoutDashboard, Users, LogOut, BookOpen, MessageSquare, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setAuthState } from '../../../redux/actions/authActions';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const isActive = (path) => location.pathname === path;
 
@@ -17,6 +20,14 @@ export default function Sidebar() {
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('Token');
+    console.log("Logged Out")
+    dispatch(setAuthState(false))
+    navigate('/login');
+
+  }
 
   return (
     <div className={`sidebar-container ${isOpen ? 'open' : 'closed'}`}>
@@ -34,11 +45,11 @@ export default function Sidebar() {
         {isOpen && (
           <div className="sidebar-links">
             <div
-              className={`sidebar-link ${isActive('/') ? 'sidebar-link-active' : ''}`}
-              onClick={() => handleNavigation('/')}
+              className={`sidebar-link ${isActive('/admin') ? 'sidebar-link-active' : ''}`}
+              onClick={() => handleNavigation('/admin')}
             >
               <LayoutDashboard
-                color={isActive('/') ? 'white' : '#9CA3AF'}
+                color={isActive('/admin') ? 'white' : '#9CA3AF'}
                 size="1.5em"
               />
               Dashboard
@@ -80,7 +91,7 @@ export default function Sidebar() {
         <div className="sidebar-bottom">
           <div
             className={`sidebar-link sidebar-logout-link ${isActive('/logout') ? 'sidebar-link-active' : ''}`}
-            onClick={() => handleNavigation('/logout')}
+            onClick={handleLogout}
           >
             <LogOut
               color={isActive('/logout') ? 'white' : '#9CA3AF'}

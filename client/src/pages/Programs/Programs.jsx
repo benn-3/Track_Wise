@@ -27,7 +27,7 @@ export default function Programs() {
     }, [token, dispatch]);
 
     const calculateProgress = (dailyTasks) => {
-        if (!dailyTasks || dailyTasks.length === 0) {
+        if (!dailyTasks || !Array.isArray(dailyTasks) || dailyTasks.length === 0) {
             return { completed: 0, total: 0 };
         }
 
@@ -35,8 +35,10 @@ export default function Programs() {
         let totalTasks = 0;
 
         dailyTasks.forEach((taskDay) => {
-            totalTasks += taskDay.tasks.length;
-            completedTasks += taskDay.tasks.filter((task) => task.completed).length;
+            if (taskDay.tasks && Array.isArray(taskDay.tasks)) {
+                totalTasks += taskDay.tasks.length;
+                completedTasks += taskDay.tasks.filter((task) => task.completed).length;
+            }
         });
 
         return { completed: completedTasks, total: totalTasks };

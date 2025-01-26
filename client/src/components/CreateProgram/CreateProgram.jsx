@@ -33,11 +33,55 @@ export default function CreateProgram({ onClose }) {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (trainers) {
-            const filteredTrainers = trainers.filter((trainer) => trainer.availability === "Not Assigned");
+        console.log("Trainers:", trainers);
+
+        if (trainers && programDetails.startDate && programDetails.endDate) {
+            console.log("Program Details:", programDetails);
+
+            const filteredTrainers = trainers.filter((trainer) => {
+                console.log("Checking trainer:", trainer.name);
+
+
+                if (!trainer.programsAssigned || !Array.isArray(trainer.programsAssigned) || trainer.programsAssigned.length === 0) {
+                    console.log("Trainer has no assigned programs, including them.");
+                    return true;
+                }
+
+                const isConflict = trainer.programsAssigned.some((program) => {
+                    const programStartDate = new Date(program.startDate);
+                    const programEndDate = new Date(program.endDate);
+
+                    const newProgramStartDate = new Date(programDetails.startDate);
+                    const newProgramEndDate = new Date(programDetails.endDate);
+
+                    console.log(`Checking date overlap for program: ${program.name}`);
+                    console.log("Assigned Program Start Date:", programStartDate);
+                    console.log("Assigned Program End Date:", programEndDate);
+                    console.log("New Program Start Date:", newProgramStartDate);
+                    console.log("New Program End Date:", newProgramEndDate);
+
+                    const hasConflict =
+                        (newProgramStartDate >= programStartDate && newProgramStartDate <= programEndDate) ||
+                        (newProgramEndDate >= programStartDate && newProgramEndDate <= programEndDate) ||
+                        (newProgramStartDate <= programStartDate && newProgramEndDate >= programEndDate);
+
+                    console.log("Conflict Found:", hasConflict);
+
+                    return hasConflict;
+                });
+
+                console.log("Does this trainer have a date conflict?", isConflict);
+
+                return !isConflict;
+            });
+
+            console.log("Filtered Trainers:", filteredTrainers);
+
             setTrainersList(filteredTrainers);
         }
-    }, [trainers]);
+    }, [trainers, programDetails.startDate, programDetails.endDate]);
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -50,42 +94,48 @@ export default function CreateProgram({ onClose }) {
     };
 
     const handleAddTask = () => {
-        const { taskName, description } = taskDetails;
-        const date = taskDetails.date || programDetails.startDate;
-        let endDate = taskDetails.endDate || programDetails.endDate;
-
+        const { taskName, description, date, endDate } = taskDetails;
+        const programStartDate = new Date(programDetails.startDate);
+        const programEndDate = new Date(programDetails.endDate);
+    
+        // If the task date is not provided or the task name or description is missing
         if (!taskName || !description || !date) {
             alert("Please fill in all task details.");
             return;
         }
-
+    
+        // Convert task date and end date to Date objects
         const taskStartDate = new Date(date);
-        const taskEndDate = new Date(endDate);
-
+        const taskEndDate = endDate ? new Date(endDate) : taskStartDate;
+    
+        // Check if the task date is within the program's start and end dates
+        if (taskStartDate < programStartDate || taskEndDate > programEndDate) {
+            alert("Task date must be within the program's start and end dates.");
+            return;
+        }
+    
+        // Check if end date is before start date
         if (taskEndDate < taskStartDate) {
             alert("End date cannot be before start date.");
             return;
         }
-
-        const newTasks = [];
-        while (taskStartDate <= taskEndDate) {
-            newTasks.push({
-                date: taskStartDate.toISOString().split('T')[0],
-                tasks: [
-                    {
-                        taskName,
-                        description,
-                        completed: false,
-                    }
-                ],
-            });
-
-            taskStartDate.setDate(taskStartDate.getDate() + 1);
-        }
-
-        setTasks([...tasks, ...newTasks]);
+    
+        // Add the task directly without looping over dates
+        const newTask = {
+            date: taskStartDate.toISOString().split('T')[0],
+            taskName,
+            description,
+            completed: false,
+        };
+    
+        // Add the new task to the tasks array
+        setTasks([...tasks, newTask]);
+    
+        // Reset task details
         setTaskDetails({ date: "", taskName: "", description: "", endDate: "" });
     };
+    
+
 
 
     const handleSubmit = async (e) => {

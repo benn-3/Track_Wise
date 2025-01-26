@@ -301,7 +301,7 @@ const deleteTrainer = async (req, res) => {
 
 const addProgram = async (req, res) => {
     try {
-        // Log incoming request data
+
         console.log('Incoming request body:', req.body);
 
         const {
@@ -313,35 +313,13 @@ const addProgram = async (req, res) => {
             location,
             trainerAssigned,
             programStatus,
-            dailyTasks, 
+            dailyTasks,
         } = req.body.formData;
 
-        // Log the dailyTasks
+
         console.log('Received dailyTasks:', dailyTasks);
 
-        // Check if dailyTasks are in the expected format
-        if (!Array.isArray(dailyTasks)) {
-            console.error('Error: dailyTasks is not an array.');
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid dailyTasks format.',
-            });
-        }
 
-        // Validate each task inside dailyTasks
-        dailyTasks.forEach((task, index) => {
-            console.log(`Task ${index + 1}:`, task);
-            if (!task.task || !Array.isArray(task.task)) {
-                console.error(`Error: task at index ${index} does not contain a valid task array.`);
-            } else {
-                task.task.forEach((subTask, subTaskIndex) => {
-                    console.log(`SubTask ${subTaskIndex + 1}:`, subTask);
-                    if (!subTask.taskName || !subTask.description) {
-                        console.error(`Error: Missing taskName or description in SubTask ${subTaskIndex + 1}`);
-                    }
-                });
-            }
-        });
 
         const trainer = await Trainer.findOne({ trainerId: trainerAssigned });
 
@@ -360,14 +338,6 @@ const addProgram = async (req, res) => {
 
         const programId = counter.sequence_value;
 
-        const formattedDailyTasks = dailyTasks.map((task) => ({
-            date: new Date(task.date),
-            tasks: task.task.map((subTask) => ({
-                taskName: subTask.taskName,
-                description: subTask.description,
-                completed: subTask.completed || false,
-            })),
-        }));
 
         const program = new Program({
             programId,
@@ -379,7 +349,7 @@ const addProgram = async (req, res) => {
             location,
             trainerAssigned: trainer._id,
             programStatus,
-            dailyTasks: formattedDailyTasks,
+            dailyTasks: dailyTasks,
         });
 
         await program.save();

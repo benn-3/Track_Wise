@@ -51,25 +51,23 @@ const programSchema = new mongoose.Schema({
                     type: Date,
                     required: true,
                 },
-                task:
-                {
-                    taskName: {
-                        type: String,
-                        required: true,
-                    },
-                    description: {
-                        type: String,
-                        required: true,
-                    },
-                    completed: {
-                        type: Boolean,
-                        default: false,
-                    },
+                taskName: {
+                    type: String,
+                    required: true,
+                },
+                description: {
+                    type: String,
+                    required: true,
+                },
+                completed: {
+                    type: Boolean,
+                    default: false,
                 },
             },
         ],
         default: null,
     },
+
     createdAt: {
         type: Date,
         default: Date.now,

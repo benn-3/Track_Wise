@@ -5,37 +5,37 @@ import './trainers.css';
 import { Search } from 'lucide-react';
 import { getAllTrainers } from '../../services/AdminOperations';
 import Loader from '../../components/Loader/Loader';
+import { useDispatch, useSelector } from 'react-redux';
+import { setTrainers } from '../../redux/actions/adminActions';
 
 export default function Trainers() {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [selectedTrainer, setSelectedTrainer] = useState(null);
-    const [trainers, setTrainers] = useState([]);
     const [filteredTrainers, setFilteredTrainers] = useState([]);
     const [addTrainerModalIsOpen, setAddTrainerModalIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const token = localStorage.getItem("Token");
+    const dispatch = useDispatch();
+
+    const trainers = useSelector((state) => state.admin.trainers || []);
 
 
     const fetchAllTrainers = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await getAllTrainers(token);
-            if (response.success) {
-                setTrainers(response.trainers);
-                setFilteredTrainers(response.trainers);
-            } else {
-                setError('Failed to fetch trainers');
-            }
+            await getAllTrainers(token, dispatch);
+
         } catch (err) {
             console.error("Error fetching trainers:", err);
+
             setError('An error occurred while fetching trainers');
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, [token, dispatch]);
 
     useEffect(() => {
         fetchAllTrainers();
@@ -44,10 +44,10 @@ export default function Trainers() {
     useEffect(() => {
         if (searchQuery) {
             const filtered = trainers.filter((trainer) =>
-                trainer.trainerId.toString().includes(searchQuery.toLowerCase()) ||
-                trainer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                trainer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (trainer.specialization && String(trainer.specialization).toLowerCase().includes(searchQuery.toLowerCase()))
+                trainer.trainerId.toString().includes(searchQuery) ||
+                trainer.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                trainer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                trainer.specialization?.toLowerCase().includes(searchQuery.toLowerCase())
             );
             setFilteredTrainers(filtered);
         } else {
@@ -55,17 +55,15 @@ export default function Trainers() {
         }
     }, [searchQuery, trainers]);
 
-    const handleViewMore = (trainer) => {
+    const handleViewMore = useCallback((trainer) => {
         setSelectedTrainer(trainer);
         setModalIsOpen(true);
-    };
+    }, []);
 
-    const closeModal = () => {
+    const closeModal = useCallback(() => {
         setModalIsOpen(false);
         setSelectedTrainer(null);
-    };
-
-
+    }, []);
 
     return (
         <div className="trainers-container">
@@ -87,14 +85,17 @@ export default function Trainers() {
                     <div
                         className="trainers-add-button"
                         onClick={() => setAddTrainerModalIsOpen(true)}
-                        required
+                        aria-label="Add a new trainer"
                     >
                         Add Trainer
                     </div>
                 </div>
             </div>
             <div className="trainers-content">
-                {filteredTrainers.length > 0 ? (
+                {error && <div className="error-message">{error}</div>}
+                {(filteredTrainers && filteredTrainers.length === 0) || (filteredTrainers && filteredTrainers.every(trainer => !trainer)) ? (
+                    <div className='no-items-found-text'>No trainers available</div>
+                ) : (
                     <table className="trainers-table">
                         <thead>
                             <tr>
@@ -123,7 +124,6 @@ export default function Trainers() {
                                             {trainer.availability || "N/A"}
                                         </div>
                                     </td>
-
                                     <td>
                                         <button
                                             className="view-more-button"
@@ -136,11 +136,8 @@ export default function Trainers() {
                             ))}
                         </tbody>
                     </table>
-                ) : (
-                    <div>No trainers found</div>
                 )}
             </div>
-
             {selectedTrainer && (
                 <TrainerPreviewPanel
                     isOpen={modalIsOpen}

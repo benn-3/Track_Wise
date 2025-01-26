@@ -3,8 +3,9 @@ import { SET_ADMIN, SET_AUTH_STATE } from "../types"
 const initialState = {
     user: null,
     token: null,
-    isAuthenticated: false,
-    role: null
+    isAuthenticated: true,
+    role: null,
+    id: null
 }
 
 export default function authReducer(state = initialState, action) {
@@ -13,7 +14,8 @@ export default function authReducer(state = initialState, action) {
             return {
                 ...state,
                 isAuthenticated: action.payload.isAuthenticated,
-                role: action.payload.role
+                role: action.payload.role,
+                id: action.payload.id
             }
         case SET_ADMIN:
             return {

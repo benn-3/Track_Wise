@@ -105,8 +105,8 @@
   width: 32%;
   gap: 1rem;
   transition: all 0.2s ease;
+  max-height: fit-content;
 }
-
 
 .program-card:hover {
   transform: scale(1.02);
@@ -144,7 +144,7 @@
   color: #6b7280;
 }
 
-.program-status.upcoming {
+.program-status.scheduled {
   background-color: #e0f2fe;
   color: #0284c7;
 }
@@ -197,7 +197,7 @@
 }
 
 .program-progress {
-  margin-top: 1em;
+  margin-top: 0.5em;
 }
 
 .progress-text {
@@ -221,4 +221,10 @@
   border-radius: 4px;
   transition: width 2s ease-in-out;
   width: 0%;
+}
+
+.no-items-found-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-style: italic;
 }

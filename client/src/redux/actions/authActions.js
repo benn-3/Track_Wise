@@ -1,11 +1,12 @@
 import { SET_ADMIN, SET_AUTH_STATE } from "../types"
 
-export const setAuthState = (isAuthenticated, role) => {
+export const setAuthState = (isAuthenticated, role, id) => {
     return {
         type: SET_AUTH_STATE,
         payload: {
             isAuthenticated: isAuthenticated,
-            role
+            role,
+            id
         }
     }
 }

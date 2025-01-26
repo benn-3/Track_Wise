@@ -1,8 +1,26 @@
 import './Dashboard.css';
 import { Users, Calendar, CheckSquare, MapPin } from 'lucide-react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { BarChart, Bar, XAxis, YAxis, Pie, Cell, CartesianGrid, PieChart, Tooltip, ResponsiveContainer } from 'recharts';
+import { getAdmin, getAllPrograms, getAllTrainers } from '../../services/AdminOperations';
 
 export default function Dashboard() {
+  const adminId = useSelector((state) => state.auth.id)
+  const dispatch = useDispatch()
+  const token = localStorage.getItem("Token")
+
+  useEffect(() => {
+    async function getAdminDetails() {
+      await getAdmin(token, adminId, dispatch)
+    }
+    async function getAlldata() {
+      await getAllTrainers(token, dispatch)
+      await getAllPrograms(token, dispatch)
+    }
+    getAdminDetails()
+    getAlldata()
+  }, [adminId, token, dispatch])
 
   const combinedData = [
     { program: 'Web Dev', venue: 'Venue 1', active: 5, completed: 4, completionRate: ((4 / 5) * 100).toFixed(2) },
@@ -210,10 +228,10 @@ export default function Dashboard() {
                   <td>
                     <div
                       className={`schedule-status-container ${schedule.status === 'Completed'
-                          ? 'status-completed'
-                          : schedule.status === 'Pending'
-                            ? 'status-pending'
-                            : 'status-in-progress'
+                        ? 'status-completed'
+                        : schedule.status === 'Pending'
+                          ? 'status-pending'
+                          : 'status-in-progress'
                         }`}
                     >
                       {schedule.status}

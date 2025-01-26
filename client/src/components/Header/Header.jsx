@@ -1,23 +1,41 @@
 import './Header.css';
 import { Bell } from 'lucide-react';
 import ProfileIcon from '../../assets/icons/profile.png';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import ProfileModal from '../ProfileModal/ProfileModal';
 
 export default function Header() {
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
-
-  const user = useSelector((state) => state.auth.user)
+  const user = useSelector((state) => state.auth.user);
+  const role = () => {
+    if (user) {
+      if (user.adminId) {
+        return 'Admin'
+      }
+      else if (user.trainerId) {
+        return 'Teacher'
+      }
+    }
+    else {
+      return ""
+    }
+  }
 
   useEffect(() => {
-    console.log(user)
-  }, [user])
+    console.log(user);
+  }, [user]);
 
   return (
     <div className="header-container">
       <div className="header-greeting">
-        <span className='greeting-one'>Welcome back, <span className='greeting-name'>Ajay M!</span></span>
-
+        <span className="greeting-one">
+          Welcome back,{' '}
+          <span className="greeting-name">
+            {user?.name || 'null'}!
+          </span>
+        </span>
       </div>
 
       <div className="header-container-left">
@@ -26,17 +44,20 @@ export default function Header() {
           <div className="notification-dot"></div>
         </div>
         <div className="header-separator"></div>
-        <div className="profile-container">
+        <div className="profile-container" onClick={() => setShowProfileModal(true)}>
           <div className="profile-img-container">
             <img src={ProfileIcon} alt="Profile" className="profile-img" />
             <div className="profile-dot"></div>
           </div>
           <div className="profile-details">
-            <div className="profile-name">Ajay M</div>
-            <div className="profile-role">Admin</div>
+            <div className="profile-name">{user?.name || 'null'}</div>
+            <div className="profile-role">{role || 'null'}</div>
           </div>
         </div>
       </div>
+
+      {showProfileModal && <ProfileModal requestClose={() => setShowProfileModal(false)} user={user} role={role} />}
+      {showProfileModal && <div className="overlay-2"></div>}
     </div>
   );
 }

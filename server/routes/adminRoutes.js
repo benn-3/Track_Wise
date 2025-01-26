@@ -10,4 +10,7 @@ router.get("/get-all-trainers", adminController.getAllTrainers)
 router.put("/edit-trainer", adminController.updateTrainer)
 router.delete("/delete-trainer", adminController.deleteTrainer)
 
+router.post("/add-program",adminController.addProgram)
+router.get("/get-all-programs",adminController.getAllPrograms)
+
 module.exports = router

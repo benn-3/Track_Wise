@@ -267,18 +267,22 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onAddTrainerSu
                         </button>
                     </div>
                     {errors.skills && <span className="error-text">{errors.skills}</span>}
-                    <ul className="add-trainer-panel__skills-list">
-                        {Array.isArray(formData.skills) && formData.skills.map((skill, index) => (
-                            <li key={index}>
-                                {skill}
-                                <button style={{
-                                    marginLeft: "1.5rem"
-                                }} className='skills-trash-button' type="button" onClick={() => removeSkill(index)}>
-                                    <Trash size={"1rem"} />
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="add-trainer-panel__skills-list">
+                        {Array.isArray(formData.skills) &&
+                            formData.skills.map((skill, index) => (
+                                <div key={index} className="skill-item">
+                                    <span>{skill}</span>
+                                    <button
+                                        style={{ marginLeft: "1.5rem",background:"transparent" }}
+                                        className="skills-trash-button"
+                                        type="button"
+                                        onClick={() => removeSkill(index)}
+                                    >
+                                        <Trash color='#e74c3c' size={"1rem"} />
+                                    </button>
+                                </div>
+                            ))}
+                    </div>
                 </div>
                 <div className="add-trainer-panel__actions">
                     <button

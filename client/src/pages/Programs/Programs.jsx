@@ -2,79 +2,39 @@ import { Calendar, CheckCircle, MapPin, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import "./programs.css";
 import CreateProgram from "../../components/CreateProgram/CreateProgram";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllPrograms } from "../../services/AdminOperations";
 
 export default function Programs() {
     const [loading, setLoading] = useState(true);
     const [isCreateProgram, setIsCreateProgram] = useState(false);
+    const dispatch = useDispatch();
+    const token = localStorage.getItem("Token");
 
-    const programs = [
-        {
-            title: "Advanced Web Development",
-            status: "Ongoing",
-            location: "Tech Hub, Building A",
-            dates: "Mar 15 - Apr 15, 2024",
-            trainers: "2 Trainers Assigned",
-            total: 30,
-            completed: 5,
-        },
-        {
-            title: "Data Science Bootcamp",
-            status: "Upcoming",
-            location: "Tech Hub, Building B",
-            dates: "Apr 1 - May 1, 2024",
-            trainers: "3 Trainers Assigned",
-            total: 30,
-            completed: 0,
-        },
-        {
-            title: "Machine Learning Workshop",
-            status: "Completed",
-            location: "Tech Hub, Building C",
-            dates: "Jan 1 - Jan 31, 2024",
-            trainers: "1 Trainer Assigned",
-            total: 30,
-            completed: 30,
-        },
-        {
-            title: "Cybersecurity Essentials",
-            status: "Ongoing",
-            location: "Tech Hub, Building D",
-            dates: "Feb 1 - Feb 28, 2024",
-            trainers: "4 Trainers Assigned",
-            total: 28,
-            completed: 10,
-        },
-        {
-            title: "Cloud Computing Fundamentals",
-            status: "Upcoming",
-            location: "Tech Hub, Building E",
-            dates: "May 1 - May 31, 2024",
-            trainers: "2 Trainers Assigned",
-            total: 30,
-            completed: 0,
-        },
-        {
-            title: "Full Stack Development",
-            status: "Completed",
-            location: "Tech Hub, Building F",
-            dates: "Nov 1 - Nov 30, 2023",
-            trainers: "3 Trainers Assigned",
-            total: 30,
-            completed: 30,
-        },
-        {
-            title: "DevOps Basics",
-            status: "Ongoing",
-            location: "Tech Hub, Building G",
-            dates: "Mar 1 - Mar 31, 2024",
-            trainers: "2 Trainers Assigned",
-            total: 31,
-            completed: 15,
-        },
-    ];
+    const programs = useSelector((state) => state.admin.programs) || [];
 
-    const calculateProgress = (total, completed) => {
-        return (completed / total) * 100;
+    useEffect(() => {
+        async function fetchPrograms() {
+            await getAllPrograms(token, dispatch);
+        }
+        fetchPrograms();
+        setLoading(false);
+    }, [token, dispatch]);
+
+    const calculateProgress = (dailyTasks) => {
+        if (!dailyTasks || dailyTasks.length === 0) {
+            return { completed: 0, total: 0 };
+        }
+
+        let completedTasks = 0;
+        let totalTasks = 0;
+
+        dailyTasks.forEach((taskDay) => {
+            totalTasks += taskDay.tasks.length;
+            completedTasks += taskDay.tasks.filter((task) => task.completed).length;
+        });
+
+        return { completed: completedTasks, total: totalTasks };
     };
 
     const handleCreateProgramOpen = () => {
@@ -84,10 +44,6 @@ export default function Programs() {
     const handleCreateProgramClose = () => {
         setIsCreateProgram(false);
     };
-
-    useEffect(() => {
-        setLoading(false);
-    }, []);
 
     return (
         <div className="programs-container">
@@ -101,7 +57,7 @@ export default function Programs() {
                         <input
                             className="programs-search-bar"
                             type="text"
-                            placeholder="Search programs, programs..."
+                            placeholder="Search programs..."
                         />
                     </div>
                     <div className="programs-add-button" onClick={handleCreateProgramOpen}>
@@ -114,53 +70,61 @@ export default function Programs() {
             {isCreateProgram && <div className="overlay" onClick={handleCreateProgramClose}></div>}
 
             <div className="programs-content">
-                {programs.map((program, index) => (
-                    <div className="program-card" key={index}>
-                        <div className="program-card-header">
-                            <div className="program-title">{program.title}</div>
-                            <span className={`program-status ${program.status.toLowerCase()}`}>
-                                {program.status}
-                            </span>
-                        </div>
+                {programs && programs.length !== 0 ? (
+                    programs.map((program, index) => {
 
-                        <div className="program-details">
-                            <p>
-                                <MapPin size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
-                                {program.location}
-                            </p>
-                            <p>
-                                <Calendar size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
-                                {program.dates}
-                            </p>
-                            <p>
-                                <Users size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
-                                {program.trainers}
-                            </p>
-                        </div>
+                        const { completed, total } = calculateProgress(program.dailyTasks);
 
-                        <div className="program-progress">
-                            <div className="progress-text">
-                                <CheckCircle size="1.2rem" color="#6B7280" style={{ marginRight: '0.5rem' }} />
-                                Progress (Day {program.completed}/{program.total})
+                        return (
+                            <div className="program-card" key={index}>
+                                <div className="program-card-header">
+                                    <div className="program-title">{program.name}</div>
+                                    <span className={`program-status ${program.programStatus.toLowerCase()}`}>
+                                        {program.programStatus}
+                                    </span>
+                                </div>
+
+                                <div className="program-details">
+                                    <p>
+                                        <MapPin size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
+                                        {program.location}
+                                    </p>
+                                    <p>
+                                        <Calendar size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
+                                        {new Date(program.startDate).toLocaleDateString()} - {new Date(program.endDate).toLocaleDateString()}
+                                    </p>
+                                    <p>
+                                        <Users size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
+                                        Trainer Assigned
+                                    </p>
+                                </div>
+
+                                <div className="program-progress">
+                                    <div className="progress-text">
+                                        <CheckCircle size="1.2rem" color="#6B7280" style={{ marginRight: '0.5rem' }} />
+                                        Progress ({completed}/{total})
+                                    </div>
+                                    <div className="progress-container">
+                                        <div
+                                            className="progress-bar"
+                                            style={{
+                                                width: `${total === 0 ? 0 : (completed / total) * 100}%`,
+                                            }}
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                <div className="program-actions">
+                                    <button className="view-schedule-btn">View Schedule</button>
+                                    <button className="manage-btn">Manage</button>
+                                </div>
                             </div>
-                            <div className="progress-container">
-                                <div
-                                    className="progress-bar"
-                                    style={{
-                                        width: `${loading ? 0 : calculateProgress(program.total, program.completed)}%`,
-                                    }}
-                                ></div>
-                            </div>
-                        </div>
-
-                        <div className="program-actions">
-                            <button className="view-schedule-btn">View Schedule</button>
-                            <button className="manage-btn">Manage</button>
-                        </div>
-                    </div>
-                ))}
+                        );
+                    })
+                ) : (
+                    <div className="no-items-found-text">No programs available</div>
+                )}
             </div>
-
 
             {isCreateProgram && <CreateProgram onClose={handleCreateProgramClose} />}
         </div>

@@ -1,9 +1,11 @@
 import axios from "axios";
 import { setAdmin } from "../redux/actions/authActions";
+import { setPrograms, setTrainers } from "../redux/actions/adminActions";
 
 const API_URL = 'http://localhost:7000/api/admin';
 
 export const getAdmin = async (token, adminId, dispatch) => {
+    console.log(adminId)
     try {
         const response = await axios.get(`${API_URL}/get-admin?adminId=${adminId}`)
         if (response.status == 200) {
@@ -63,12 +65,13 @@ export const handleAddTrainer = async (formData) => {
     }
 };
 
-export const getAllTrainers = async () => {
+export const getAllTrainers = async (token, dispatch) => {
     try {
         const response = await axios.get(`${API_URL}/get-all-trainers`);
         if (response.status === 200) {
-            return response.data;
+            dispatch(setTrainers(response.data.trainers));
         } else {
+            dispatch(setTrainers([]));
             throw new Error('Failed to fetch trainers');
         }
     } catch (error) {
@@ -101,4 +104,34 @@ export const deleteTrainer = async (token, trainerId) => {
         console.error('Error deleting trainer:', err.message);
     }
 
+}
+
+export const addProgram = async (token, formData) => {
+    console.log(formData)
+    try {
+        const response = await axios.post(`${API_URL}/add-program`, {
+            formData
+        });
+        return response.data;
+    }
+    catch (err) {
+        console.error('Error adding program:', err.message);
+    }
+
+
+}
+
+export const getAllPrograms = async (token, dispatch) => {
+    try {
+        const response = await axios.get(`${API_URL}/get-all-programs`);
+        if (response.status === 200) {
+            dispatch(setPrograms(response.data.programs))
+        }
+        else {
+            dispatch(setPrograms([]))
+        }
+    }
+    catch (err) {
+        console.error('Error getting all programs:', err.message);
+    }
 }

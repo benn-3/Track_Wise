@@ -4,13 +4,25 @@ const Admin = require("../models/adminSchema");
 const Counter = require("../models/counterSchema");
 const { createToken } = require("../utils/jwt");
 const { Op } = require('sequelize');
+const Program = require("../models/programSchema");
+const cron = require('node-cron');
+const moment = require('moment');
 
 
 const getAdmin = async (req, res) => {
     try {
         const { adminId } = req.query;
 
-        const admin = await Admin.findOne({ adminId }).select('-password'); // Exclude the password field
+        if (!adminId) {
+            return res.status(400).json({ message: 'Admin ID is required' });
+        }
+
+        const adminIdNumber = Number(adminId);
+        if (isNaN(adminIdNumber)) {
+            return res.status(400).json({ message: 'Invalid Admin ID' });
+        }
+
+        const admin = await Admin.findOne({ adminId: adminIdNumber }).select('-password');
 
         if (!admin) {
             return res.status(404).json({ message: 'Admin not found' });
@@ -22,6 +34,7 @@ const getAdmin = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 
 const adminSignup = async (req, res) => {
@@ -281,6 +294,128 @@ const deleteTrainer = async (req, res) => {
 
 
 
+
+const addProgram = async (req, res) => {
+    try {
+        const {
+            name,
+            description,
+            startDate,
+            endDate,
+            venue,
+            location,
+            trainerAssigned,
+            programStatus,
+            dailyTasks,
+        } = req.body.formData;
+
+        const trainer = await Trainer.findOne({ trainerId: trainerAssigned });
+
+        if (!trainer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Trainer not found.',
+            });
+        }
+
+        const counter = await Counter.findByIdAndUpdate(
+            { _id: 'programId' },
+            { $inc: { sequence_value: 1 } },
+            { new: true, upsert: true }
+        );
+
+        const programId = counter.sequence_value;
+
+        const program = new Program({
+            programId,
+            name,
+            description,
+            startDate,
+            endDate,
+            venue,
+            location,
+            trainerAssigned: trainer._id,
+            programStatus,
+            dailyTasks,
+        });
+
+        await program.save();
+
+        trainer.availability = 'Assigned';
+
+
+        trainer.programsAssigned = trainer.programsAssigned || [];
+        trainer.programsAssigned.push(program._id);
+
+        await trainer.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Program added successfully',
+            program,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error adding program',
+            error: error.message,
+        });
+    }
+};
+
+
+const getAllPrograms = async (req, res) => {
+    try {
+
+        const programs = await Program.find()
+
+        res.status(200).json({
+            success: true,
+            message: 'Programs fetched successfully',
+            programs,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching programs',
+            error: error.message,
+        });
+    }
+};
+
+
+console.log('Cron job started. Updating program statuses every second.');
+
+cron.schedule('* * * * * *', async () => {
+    const today = moment().startOf('day');
+
+    try {
+
+        const programs = await Program.find({ programStatus: { $ne: 'Cancelled' } });
+
+        programs.forEach(async (program) => {
+            const startDate = moment(program.startDate);
+            const endDate = moment(program.endDate);
+
+
+            if (startDate.isSame(today, 'day') && program.programStatus !== 'Ongoing') {
+                program.programStatus = 'Ongoing';
+                await program.save();
+            }
+
+            else if (endDate.isBefore(today, 'day') && program.programStatus !== 'Completed') {
+                program.programStatus = 'Completed';
+                await program.save();
+            }
+        });
+    } catch (err) {
+        console.error('Error updating program statuses:', err);
+    }
+});
+
 module.exports = {
     adminSignin,
     adminSignup,
@@ -289,5 +424,7 @@ module.exports = {
     getTrainerById,
     updateTrainer,
     deleteTrainer,
-    getAdmin
+    getAdmin,
+    addProgram,
+    getAllPrograms
 }

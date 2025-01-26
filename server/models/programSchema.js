@@ -4,7 +4,7 @@ const programSchema = new mongoose.Schema({
     programId: {
         type: Number,
         required: true,
-        unique: true
+        unique: true,
     },
     name: {
         type: String,
@@ -15,10 +15,6 @@ const programSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-    },
-    duration: {
-        type: String,
-        required: true,
     },
     startDate: {
         type: Date,
@@ -36,7 +32,7 @@ const programSchema = new mongoose.Schema({
     location: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
     trainerAssigned: {
         type: mongoose.Schema.Types.ObjectId,
@@ -45,33 +41,36 @@ const programSchema = new mongoose.Schema({
     },
     programStatus: {
         type: String,
-        enum: ['Scheduled', 'In Progress', 'Completed', 'Cancelled'],
+        enum: ['Scheduled', 'Ongoing', 'Completed', 'Cancelled'],
         default: 'Scheduled',
     },
-    dailyTasks: [
-        {
-            date: {
-                type: Date,
-                required: true,
-            },
-            tasks: [
-                {
-                    taskName: {
-                        type: String,
-                        required: true,
-                    },
-                    description: {
-                        type: String,
-                        required: true,
-                    },
-                    completed: {
-                        type: Boolean,
-                        default: false,
-                    },
+    dailyTasks: {
+        type: [
+            {
+                date: {
+                    type: Date,
+                    required: true,
                 },
-            ],
-        },
-    ],
+                tasks: [
+                    {
+                        taskName: {
+                            type: String,
+                            required: true,
+                        },
+                        description: {
+                            type: String,
+                            required: true,
+                        },
+                        completed: {
+                            type: Boolean,
+                            default: false,
+                        },
+                    },
+                ],
+            },
+        ],
+        default: null,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -86,7 +85,6 @@ programSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
-
 
 const Program = mongoose.model('Program', programSchema);
 

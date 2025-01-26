@@ -1,51 +1,43 @@
-import { useState, useEffect } from 'react';
-import './createprogram.css';
-import { X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import "./createprogram.css";
+import { X } from "lucide-react";
+import { addProgram, getAllPrograms, getAllTrainers } from "../../services/AdminOperations";
+import { useDispatch, useSelector } from "react-redux";
+import { showToast } from "../../hooks/useToast";
+import { setTrainers } from "../../redux/actions/adminActions";
 
 export default function CreateProgram({ onClose }) {
+    const token = localStorage.getItem("Token");
+    const trainers = useSelector((state) => state.admin.trainers);
+    const dispatch = useDispatch();
+
     const [programDetails, setProgramDetails] = useState({
-        title: '',
-        startDate: '',
-        venue: '',
-        endDate: '',
-        status: '',
-        location: '',
-        trainers: '',
+        name: "",
+        startDate: "",
+        endDate: "",
+        venue: "",
+        programStatus: "Scheduled",
+        location: "",
+        trainerAssigned: "",
+        description: "",
     });
 
-
-    const [tasks, setTasks] = useState([{
-        date: '12-05-2025',
-        taskName: 'MERN',
-        description: 'FullStack',
-
-    }]);
-
+    const [tasks, setTasks] = useState([]);
     const [taskDetails, setTaskDetails] = useState({
-        date: '',
-        taskName: '',
-        description: '',
+        startDate: "",
+        taskName: "",
+        description: "",
     });
 
-    const trainersList = [
-        { id: 1, name: 'Trainer A', specialization: 'Web' },
-        { id: 2, name: 'Trainer B', specialization: 'App' },
-        { id: 3, name: 'Trainer C', specialization: 'BlockChain' },
-        { id: 4, name: 'Trainer D', specialization: 'Python' },
-    ];
-
-    const [isVisible, setIsVisible] = useState(false);
-
-    const handleClose = () => {
-        setIsVisible(false);
-        setTimeout(() => {
-            onClose();
-        }, 300);
-    };
+    const [trainersList, setTrainersList] = useState([]);
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        setIsVisible(true);
-    }, []);
+        if (trainers) {
+            const filteredTrainers = trainers.filter((trainer) => trainer.availability === "Not Assigned");
+            setTrainersList(filteredTrainers);
+        }
+    }, [trainers]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -58,130 +50,135 @@ export default function CreateProgram({ onClose }) {
     };
 
     const handleAddTask = () => {
-        if (taskDetails.startDate && taskDetails.endDate && taskDetails.taskName && taskDetails.description) {
-            const taskList = [];
-            const start = new Date(taskDetails.startDate);
-            const end = new Date(taskDetails.endDate);
+        const { taskName, description } = taskDetails;
+        const startDate = taskDetails.startDate || programDetails.startDate;
+        const endDate = programDetails.endDate;
 
-            while (start <= end) {
-                taskList.push({
-                    date: start.toISOString().split('T')[0],
-                    taskName: taskDetails.taskName,
-                    description: taskDetails.description,
-                });
-                start.setDate(start.getDate() + 1);
-            }
-
-            setTasks([...tasks, ...taskList]);
-            setTaskDetails({ startDate: '', endDate: '', taskName: '', description: '' });
-        } else {
-            alert('Please fill in all fields to add tasks.');
+        if (!taskName || !description || !startDate || !endDate) {
+            alert("Please fill in all task details.");
+            return;
         }
+
+        const taskStartDate = new Date(startDate);
+        const taskEndDate = new Date(endDate);
+        const newTasks = [];
+
+        while (taskStartDate <= taskEndDate) {
+            newTasks.push({
+                date: taskStartDate.toISOString().split('T')[0],
+                taskName,
+                description,
+            });
+
+            taskStartDate.setDate(taskStartDate.getDate() + 1);
+        }
+
+        setTasks([...tasks, ...newTasks]);
+        setTaskDetails({ startDate: "", taskName: "", description: "" });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Program Details Submitted:', programDetails);
-        console.log('Tasks:', tasks);
+        const { name, startDate, endDate, venue, trainerAssigned, location, description } = programDetails;
+
+        if (!name || !startDate || !endDate || !venue || !trainerAssigned || !location || !description) {
+            setError("Please fill in all required fields.");
+            return;
+        }
+
+        const payload = {
+            ...programDetails,
+            dailyTasks: tasks,
+        };
+
+        try {
+            const response = await addProgram(token, payload);
+            if (response.success) {
+                showToast("Program added successfully", "success");
+                await getAllPrograms(token,dispatch)
+                await getAllTrainers(token, dispatch)
+                console.log("Program added successfully:", response);
+            }
+            else {
+                showToast("Error adding program", "error");
+            }
+            onClose();
+        } catch (error) {
+            console.error("Error adding program:", error.message);
+            alert("Failed to add program. Please try again.");
+        }
     };
 
     return (
         <div className="create-program-container">
             <div className="create-program-header">
                 Add Program Details
-                <X onClick={handleClose} className="create-program-close-button" size="1.7rem" color="#333" />
+                <X onClick={onClose} className="create-program-close-button" size="1.7rem" color="#333" />
             </div>
 
             <form className="create-program-form" onSubmit={handleSubmit}>
+                {/* Error Message */}
+                {error && <p className="error-text">{error}</p>}
+
+                {/* Program Title */}
                 <div className="form-group">
-                    <label htmlFor="title">Program Title</label>
+                    <label htmlFor="name">Program Name *</label>
                     <input
                         type="text"
-                        name="title"
-                        id="title"
-                        placeholder="Program Title"
-                        value={programDetails.title}
+                        name="name"
+                        id="name"
+                        placeholder="Program Name"
+                        value={programDetails.name}
                         onChange={handleChange}
+                        required
                     />
                 </div>
 
+                {/* Program Description */}
                 <div className="form-group">
-                    <label htmlFor="startDate">Start Date</label>
+                    <label htmlFor="description">Program Description *</label>
+                    <textarea
+                        name="description"
+                        id="description"
+                        placeholder="Program Description"
+                        value={programDetails.description}
+                        onChange={handleChange}
+                        required
+                        style={{
+                            fontFamily: "Montserrat"
+                        }}
+                    />
+                </div>
+
+                {/* Start Date */}
+                <div className="form-group">
+                    <label htmlFor="startDate">Start Date *</label>
                     <input
                         type="date"
                         name="startDate"
                         id="startDate"
-                        placeholder="Start Date"
-                        value={taskDetails.startDate}
-                        onChange={(e) => setTaskDetails({ ...taskDetails, startDate: e.target.value })}
+                        value={programDetails.startDate}
+                        onChange={handleChange}
+                        required
                     />
                 </div>
 
+                {/* End Date */}
                 <div className="form-group">
-                    <label htmlFor="endDate">End Date</label>
+                    <label htmlFor="endDate">End Date *</label>
                     <input
                         type="date"
                         name="endDate"
                         id="endDate"
-                        placeholder="End Date"
-                        value={taskDetails.endDate}
-                        onChange={(e) => setTaskDetails({ ...taskDetails, endDate: e.target.value })}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="status">Program Status</label>
-                    <div className="status-radio-group">
-                        <div className="status-option">
-                            <input
-                                type="radio"
-                                id="status-ongoing"
-                                name="status"
-                                value="Ongoing"
-                                checked={programDetails.status === 'Ongoing'}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="status-ongoing">Ongoing</label>
-                        </div>
-                        <div className="status-option">
-                            <input
-                                type="radio"
-                                id="status-completed"
-                                name="status"
-                                value="Completed"
-                                checked={programDetails.status === 'Completed'}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="status-completed">Completed</label>
-                        </div>
-                        <div className="status-option">
-                            <input
-                                type="radio"
-                                id="status-upcoming"
-                                name="status"
-                                value="Upcoming"
-                                checked={programDetails.status === 'Upcoming'}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="status-upcoming">Upcoming</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="location">Location</label>
-                    <input
-                        type="text"
-                        name="location"
-                        id="location"
-                        placeholder="Location"
-                        value={programDetails.location}
+                        value={programDetails.endDate}
                         onChange={handleChange}
+                        required
                     />
                 </div>
 
+                {/* Venue */}
                 <div className="form-group">
-                    <label htmlFor="venue">Venue</label>
+                    <label htmlFor="venue">Venue *</label>
                     <input
                         type="text"
                         name="venue"
@@ -189,36 +186,56 @@ export default function CreateProgram({ onClose }) {
                         placeholder="Venue"
                         value={programDetails.venue}
                         onChange={handleChange}
+                        required
                     />
                 </div>
 
-                <div className="form-group create-program-trainer-assignment">
-                    <label htmlFor="trainers" className="create-program-trainer-label">Trainers Assigned</label>
+                {/* Trainer Assignment */}
+                <div className="form-group">
+                    <label htmlFor="trainerAssigned">Trainer Assigned *</label>
                     <select
-                        name="trainers"
-                        id="trainers"
-                        value={programDetails.trainers}
-                        onChange={handleChange}
-                        className="create-program-trainer-select"
+                        name="trainerAssigned"
+                        id="trainerAssigned"
+                        value={programDetails.trainerAssigned}
+                        onChange={(e) =>
+                            setProgramDetails({ ...programDetails, trainerAssigned: e.target.value })
+                        }
+                        required
                     >
                         <option value="">Select Trainer</option>
                         {trainersList.map((trainer) => (
-                            <option key={trainer.id} value={trainer.id} className="create-program-trainer-option">
-                                {trainer.id} - {trainer.name} ({trainer.specialization})
+                            <option key={trainer.trainerId} value={trainer.trainerId}>
+                                {trainer.name} ({trainer.specialization})
                             </option>
                         ))}
                     </select>
                 </div>
 
+                {/* Location */}
+                <div className="form-group">
+                    <label htmlFor="location">Location *</label>
+                    <input
+                        type="text"
+                        name="location"
+                        id="location"
+                        placeholder="Location"
+                        value={programDetails.location}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
 
+                {/* Daily Tasks */}
                 <div className="daily-task-section">
                     <h3>Schedule Daily Tasks</h3>
+                    <h5 style={{ color: 'red', fontWeight: "600" }}>
+                        You can add tasks later if needed.
+                    </h5>
                     <div className="form-group">
-                        <label htmlFor="taskDate">Task Date</label>
+                        <label htmlFor="startDate">Task Date</label>
                         <input
                             type="date"
-                            name="date"
-                            id="taskDate"
+                            name="startDate"
                             value={taskDetails.startDate}
                             onChange={handleTaskChange}
                         />
@@ -228,8 +245,6 @@ export default function CreateProgram({ onClose }) {
                         <input
                             type="text"
                             name="taskName"
-                            id="taskName"
-                            placeholder="Task Name"
                             value={taskDetails.taskName}
                             onChange={handleTaskChange}
                         />
@@ -239,28 +254,30 @@ export default function CreateProgram({ onClose }) {
                         <input
                             type="text"
                             name="description"
-                            id="description"
-                            placeholder="Task Description"
                             value={taskDetails.description}
                             onChange={handleTaskChange}
                         />
                     </div>
-                    <button style={{
-                        backgroundColor:"#6366F1",
-                    }} type="button" onClick={handleAddTask}>
-                        Add Task
-                    </button>
+                    <div className="task-buttons" style={{ display: "flex", justifyContent: "space-between" }}>
+                        <button type="button" onClick={handleAddTask}>
+                            Add Task
+                        </button>
+                        <button type="button" onClick={() => setTasks([])}>
+                            Reset Tasks
+                        </button>
+                    </div>
 
                     <div className="task-list">
-                        <h3 style={{
-                            margin: "1em 0em",
-                            color:"#333"
-                        }}>Scheduled Tasks:</h3>
+                        <h3>Scheduled Tasks:</h3>
                         {tasks.length > 0 ? (
                             tasks.map((task, index) => (
                                 <div key={index} className="task-item">
-                                    <p className='task-item-date'><strong>{task.date}</strong></p>
-                                    <p className='task-item-task-name'>{task.taskName} - {task.description}</p>
+                                    <p>
+                                        <strong>{task.date}</strong>
+                                    </p>
+                                    <p>
+                                        {task.taskName} - {task.description}
+                                    </p>
                                 </div>
                             ))
                         ) : (
@@ -269,12 +286,8 @@ export default function CreateProgram({ onClose }) {
                     </div>
                 </div>
 
-
                 <button type="submit">Add Program</button>
             </form>
-
-
         </div>
-
     );
 }

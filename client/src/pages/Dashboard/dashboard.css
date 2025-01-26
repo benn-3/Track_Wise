@@ -53,10 +53,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 20%;
+padding: 0.5rem;
   aspect-ratio: 1;
   border-radius: 5px;
-  min-width: 40px;
+
 }
 
 .dashboard-card-icon-container.users {

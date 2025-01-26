@@ -50,6 +50,8 @@
   flex-direction: column;
   flex: 1;
   margin-top: 2.5rem;
+  align-items: center;
+  
 }
 
 .trainers-table {
@@ -469,7 +471,7 @@
 
 .add-trainer-panel__actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
 }
 
@@ -485,6 +487,7 @@
   display: flex;
   align-items: center;
   margin-top: 1em;
+  align-self: center;
 }
 
 .add-trainer-panel__save-button:hover {
@@ -549,22 +552,24 @@
 }
 
 .add-trainer-panel__skills-list {
-  margin-top: 1rem;
   list-style-type: disc;
-  padding-left: 1.5rem;
+  flex-direction: column;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
-.add-trainer-panel__skills-list li {
-  padding: 0.5rem;
-  border-radius: 4px;
+.add-trainer-panel__skills-list .skill-item {
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
-  background-color: #f4f4f4;
-}
-
-.add-trainer-panel__skills-list li button {
-  margin-left: 1rem;
+  background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
+  padding: 0.2rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: white;
+  font-weight: 550;
+  width: fit-content;
 }
 
 .error-text {
@@ -591,7 +596,7 @@
 .trainer-preview-panel__skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* Add space between items */
+  gap: 0.5rem;
 }
 
 .trainer-preview-panel__skill-item {
@@ -672,4 +677,9 @@
 
 .trainer-preview-modal__remove-skill-button:hover {
   color: #d32f2f;
+}
+
+.no-items-found-text {
+  font-size: 1rem;
+  align-self: center;
 }

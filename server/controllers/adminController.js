@@ -186,13 +186,17 @@ const addTrainer = async (req, res) => {
 
 const getAllTrainers = async (req, res) => {
     try {
-        const trainers = await Trainer.find();
+
+        const trainers = await Trainer.find()
+            .populate('programsAssigned');
+
         res.status(200).json({
             success: true,
             message: "Trainers retrieved successfully.",
             trainers,
         });
     } catch (error) {
+
         console.error("Error fetching trainers:", error);
         res.status(500).json({
             success: false,

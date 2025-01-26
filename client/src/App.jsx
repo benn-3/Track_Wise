@@ -18,9 +18,38 @@ import { getAdmin } from "./services/AdminOperations";
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
- 
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem("Token");
+      if (token) {
+        try {
+          const response = await checkTokenIsValid(token);
+          if (response.success) {
+            console.log("App : ", response)
+            if (response.decoded.adminId) {
+              dispatch(setAuthState(true, "admin", response.decoded.adminId));
+            } else if (response.decoded.trainerId) {
+              dispatch(setAuthState(true, "trainer", response.decoded.trainerId));
+            }
+          } else {
+            dispatch(setAuthState(false));
+            localStorage.removeItem("Token");
+          }
+        } catch (error) {
+          console.error("Token validation failed", error);
+          dispatch(setAuthState(false));
+          localStorage.removeItem("Token");
+        }
+      } else {
+        dispatch(setAuthState(false));
+      }
+      setLoading(false);
+    };
+
+    checkToken();
+  }, [dispatch]);
 
   if (loading) {
     return <Loader />;

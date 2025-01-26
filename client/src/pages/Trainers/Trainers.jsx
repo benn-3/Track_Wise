@@ -22,6 +22,10 @@ export default function Trainers() {
     const trainers = useSelector((state) => state.admin.trainers || []);
 
 
+    useEffect(()=>{
+        console.log(trainers)
+    },[trainers])
+
     const fetchAllTrainers = useCallback(async () => {
         setLoading(true);
         setError(null);

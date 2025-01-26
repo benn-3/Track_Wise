@@ -3,7 +3,7 @@ import { SET_ADMIN, SET_AUTH_STATE } from "../types"
 const initialState = {
     user: null,
     token: null,
-    isAuthenticated: true,
+    isAuthenticated: false,
     role: null,
     id: null
 }

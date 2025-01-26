@@ -8,7 +8,7 @@
   flex-direction: row;
   justify-content: space-between;
   padding: 0 1.5rem;
-  z-index: 900;
+  z-index: 300;
 }
 
 
@@ -61,19 +61,20 @@
 }
 
 .profile-img {
-  width: 2.2em;
-  height: 2.2em;
+  width: 2.3em;
+  height: 2.3em;
   object-fit: cover;
+  aspect-ratio: 1;
 }
 
 .profile-name {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 550;
   color: #333;
 }
 
 .profile-role {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #787878;
   text-transform: uppercase;
@@ -134,16 +135,9 @@
 }
 
 .header-greeting .greeting-one {
-  font-size: 1.5rem;  
+  font-size: 1.7rem;  
   color: #565656;
   font-weight: 600;
-}
-
-.header-greeting .greeting-two {
-  font-size: 0.9rem;
-  color: #666;
-  font-weight: 450;
-  
 }
 
 .header-greeting .greeting-name{

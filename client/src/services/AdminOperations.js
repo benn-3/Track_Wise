@@ -5,21 +5,28 @@ import { setPrograms, setTrainers } from "../redux/actions/adminActions";
 const API_URL = 'http://localhost:7000/api/admin';
 
 export const getAdmin = async (token, adminId, dispatch) => {
-    console.log(adminId)
+    if (!adminId) {
+        console.error("Admin ID is not available.");
+        return;
+    }
+
     try {
-        const response = await axios.get(`${API_URL}/get-admin?adminId=${adminId}`)
-        if (response.status == 200) {
-            const data = response.data.admin
-            await dispatch(setAdmin(data))
-        }
-        else {
+        const response = await axios.get(`${API_URL}/get-admin?adminId=${adminId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 200) {
+            const data = response.data.admin;
+            dispatch(setAdmin(data));
+        } else {
             console.error(response.data.message);
         }
+    } catch (err) {
+        console.error("Error fetching admin details:", err.message || err);
     }
-    catch (err) {
-        console.log(err);
-    }
-}
+};
 
 
 export const adminSignup = async (signupData) => {

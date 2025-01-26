@@ -1,26 +1,37 @@
 import './Dashboard.css';
 import { Users, Calendar, CheckSquare, MapPin } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BarChart, Bar, XAxis, YAxis, Pie, Cell, CartesianGrid, PieChart, Tooltip, ResponsiveContainer } from 'recharts';
 import { getAdmin, getAllPrograms, getAllTrainers } from '../../services/AdminOperations';
+import Loader from '../../components/Loader/Loader';
 
 export default function Dashboard() {
   const adminId = useSelector((state) => state.auth.id)
   const dispatch = useDispatch()
   const token = localStorage.getItem("Token")
+  const [loading, setLoading] = useState(true)
+
 
   useEffect(() => {
-    async function getAdminDetails() {
-      await getAdmin(token, adminId, dispatch)
-    }
-    async function getAlldata() {
-      await getAllTrainers(token, dispatch)
-      await getAllPrograms(token, dispatch)
-    }
-    getAdminDetails()
-    getAlldata()
-  }, [adminId, token, dispatch])
+    const fetchData = async () => {
+      if (adminId) {
+        try {
+          await Promise.all([
+            getAllTrainers(token, dispatch),
+            getAllPrograms(token, dispatch),
+          ]);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [adminId, token, dispatch]);
+
 
   const combinedData = [
     { program: 'Web Dev', venue: 'Venue 1', active: 5, completed: 4, completionRate: ((4 / 5) * 100).toFixed(2) },
@@ -98,7 +109,10 @@ export default function Dashboard() {
   return (
     <div className='dashboard-container'>
       <div className='dashboard-content'>
-        <div className='dashboard-title'>Dashboard</div>
+        <div className='dashboard-title'>
+          <div className='vertical-bar-title'></div>
+          Dashboard
+        </div>
         <div className="dashboard-info-cards">
           <div className="dashboard-info-card">
             <div className="dashboard-card-icon-container users">
@@ -205,7 +219,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="dashboard-schedule-container">
-          <div className="dashboard-schedule-title">Today's Training Schedule</div>
+          <div className="dashboard-schedule-title">Today&apos;s Training Schedule</div>
           <table className="schedule-table">
             <thead>
               <tr>
@@ -218,9 +232,9 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {scheduleData.map((schedule, index) => (
+              {scheduleData.map((schedule) => (
                 <tr key={schedule.id}>
-                  <td>{schedule.id}</td> {/* Added ID field */}
+                  <td>{schedule.id}</td>
                   <td>{schedule.program}</td>
                   <td>{schedule.trainer}</td>
                   <td>{schedule.venue}</td>

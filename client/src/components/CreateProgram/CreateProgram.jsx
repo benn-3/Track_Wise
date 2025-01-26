@@ -24,7 +24,7 @@ export default function CreateProgram({ onClose }) {
 
     const [tasks, setTasks] = useState([]);
     const [taskDetails, setTaskDetails] = useState({
-        startDate: "",
+        date: "",
         taskName: "",
         description: "",
     });
@@ -51,31 +51,42 @@ export default function CreateProgram({ onClose }) {
 
     const handleAddTask = () => {
         const { taskName, description } = taskDetails;
-        const startDate = taskDetails.startDate || programDetails.startDate;
-        const endDate = programDetails.endDate;
+        const date = taskDetails.date || programDetails.startDate;
+        let endDate = taskDetails.endDate || programDetails.endDate;
 
-        if (!taskName || !description || !startDate || !endDate) {
+        if (!taskName || !description || !date) {
             alert("Please fill in all task details.");
             return;
         }
 
-        const taskStartDate = new Date(startDate);
+        const taskStartDate = new Date(date);
         const taskEndDate = new Date(endDate);
-        const newTasks = [];
 
+        if (taskEndDate < taskStartDate) {
+            alert("End date cannot be before start date.");
+            return;
+        }
+
+        const newTasks = [];
         while (taskStartDate <= taskEndDate) {
             newTasks.push({
                 date: taskStartDate.toISOString().split('T')[0],
-                taskName,
-                description,
+                tasks: [
+                    {
+                        taskName,
+                        description,
+                        completed: false,
+                    }
+                ],
             });
 
             taskStartDate.setDate(taskStartDate.getDate() + 1);
         }
 
         setTasks([...tasks, ...newTasks]);
-        setTaskDetails({ startDate: "", taskName: "", description: "" });
+        setTaskDetails({ date: "", taskName: "", description: "", endDate: "" });
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -91,15 +102,16 @@ export default function CreateProgram({ onClose }) {
             dailyTasks: tasks,
         };
 
+        console.log(payload)
+
         try {
             const response = await addProgram(token, payload);
             if (response.success) {
                 showToast("Program added successfully", "success");
-                await getAllPrograms(token,dispatch)
-                await getAllTrainers(token, dispatch)
+                await getAllPrograms(token, dispatch);
+                await getAllTrainers(token, dispatch);
                 console.log("Program added successfully:", response);
-            }
-            else {
+            } else {
                 showToast("Error adding program", "error");
             }
             onClose();
@@ -232,11 +244,11 @@ export default function CreateProgram({ onClose }) {
                         You can add tasks later if needed.
                     </h5>
                     <div className="form-group">
-                        <label htmlFor="startDate">Task Date</label>
+                        <label htmlFor="date">Task Date</label>
                         <input
                             type="date"
-                            name="startDate"
-                            value={taskDetails.startDate}
+                            name="date"
+                            value={taskDetails.date}
                             onChange={handleTaskChange}
                         />
                     </div>

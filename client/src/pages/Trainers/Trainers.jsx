@@ -22,9 +22,9 @@ export default function Trainers() {
     const trainers = useSelector((state) => state.admin.trainers || []);
 
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(trainers)
-    },[trainers])
+    }, [trainers])
 
     const fetchAllTrainers = useCallback(async () => {
         setLoading(true);
@@ -73,6 +73,7 @@ export default function Trainers() {
         <div className="trainers-container">
             <div className="trainers-header">
                 <div className="trainers-header-text">
+                    <div className='vertical-bar-title'></div>
                     <div className="trainers-title">Manage Trainers</div>
                 </div>
                 <div className='trainers-header-left'>

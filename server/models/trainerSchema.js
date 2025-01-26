@@ -46,10 +46,10 @@ const trainerSchema = new mongoose.Schema({
         type: [String],
         default: [],
     },
-    programsAssigned: {
-        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Program' }],
-        default: [],
-    },
+    programsAssigned: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Program',
+    }],
     attendance: {
         type: [{
             date: {

@@ -17,7 +17,8 @@
 
 .trainers-header-text {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
 }
 
 .trainers-title {
@@ -51,7 +52,6 @@
   flex: 1;
   margin-top: 2.5rem;
   align-items: center;
-  
 }
 
 .trainers-table {

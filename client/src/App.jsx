@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Header from "./components/Header/Header";
@@ -19,6 +19,7 @@ function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const checkToken = async () => {
@@ -27,9 +28,9 @@ function App() {
         try {
           const response = await checkTokenIsValid(token);
           if (response.success) {
-            console.log("App : ", response)
             if (response.decoded.adminId) {
               dispatch(setAuthState(true, "admin", response.decoded.adminId));
+              await getAdmin(token, response.decoded.adminId, dispatch);
             } else if (response.decoded.trainerId) {
               dispatch(setAuthState(true, "trainer", response.decoded.trainerId));
             }
@@ -51,9 +52,7 @@ function App() {
     checkToken();
   }, [dispatch]);
 
-  if (loading) {
-    return <Loader />;
-  }
+
 
   return (
     <div className="App">

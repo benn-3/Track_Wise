@@ -4,10 +4,15 @@ import "./programs.css";
 import CreateProgram from "../../components/CreateProgram/CreateProgram";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPrograms } from "../../services/AdminOperations";
+import ProgramCard from "../../components/ProgramCard/ProgramCard";
 
 export default function Programs() {
     const [loading, setLoading] = useState(true);
     const [isCreateProgram, setIsCreateProgram] = useState(false);
+    const [isOpenCard, setIsOpenCard] = useState(false);
+    const [selectedProgram, setSelectedProgram] = useState(null);
+    const [actionType, setActionType] = useState(""); // View or Manage
+
     const dispatch = useDispatch();
     const token = localStorage.getItem("Token");
 
@@ -45,10 +50,23 @@ export default function Programs() {
         setIsCreateProgram(false);
     };
 
+    const handleCardOpen = (program, type) => {
+        setSelectedProgram(program);
+        setActionType(type);
+        setIsOpenCard(true);
+    };
+
+    const handleCardClose = () => {
+        setIsOpenCard(false);
+        setSelectedProgram(null);
+        setActionType("");
+    };
+
     return (
         <div className="programs-container">
             <div className="programs-header">
                 <div className="programs-header-text">
+                    <div className="vertical-bar-title"></div>
                     <div className="programs-title">Training Programs</div>
                 </div>
                 <div className="programs-header-left">
@@ -66,13 +84,11 @@ export default function Programs() {
                 </div>
             </div>
 
-            {/* Overlay when CreateProgram modal is open */}
             {isCreateProgram && <div className="overlay" onClick={handleCreateProgramClose}></div>}
 
             <div className="programs-content">
                 {programs && programs.length !== 0 ? (
                     programs.map((program, index) => {
-
                         const { completed, total } = calculateProgress(program.dailyTasks);
 
                         return (
@@ -86,22 +102,23 @@ export default function Programs() {
 
                                 <div className="program-details">
                                     <p>
-                                        <MapPin size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
+                                        <MapPin size="1.2rem" color="#7A808D" style={{ marginRight: "0.5rem" }} />
                                         {program.location}
                                     </p>
                                     <p>
-                                        <Calendar size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
-                                        {new Date(program.startDate).toLocaleDateString()} - {new Date(program.endDate).toLocaleDateString()}
+                                        <Calendar size="1.2rem" color="#7A808D" style={{ marginRight: "0.5rem" }} />
+                                        {new Date(program.startDate).toLocaleDateString()} -{" "}
+                                        {new Date(program.endDate).toLocaleDateString()}
                                     </p>
                                     <p>
-                                        <Users size="1.2rem" color="#7A808D" style={{ marginRight: '0.5rem' }} />
+                                        <Users size="1.2rem" color="#7A808D" style={{ marginRight: "0.5rem" }} />
                                         Trainer Assigned
                                     </p>
                                 </div>
 
                                 <div className="program-progress">
                                     <div className="progress-text">
-                                        <CheckCircle size="1.2rem" color="#6B7280" style={{ marginRight: '0.5rem' }} />
+                                        <CheckCircle size="1.2rem" color="#6B7280" style={{ marginRight: "0.5rem" }} />
                                         Progress ({completed}/{total})
                                     </div>
                                     <div className="progress-container">
@@ -115,8 +132,18 @@ export default function Programs() {
                                 </div>
 
                                 <div className="program-actions">
-                                    <button className="view-schedule-btn">View Schedule</button>
-                                    <button className="manage-btn">Manage</button>
+                                    <button
+                                        className="view-schedule-btn"
+                                        onClick={() => handleCardOpen(program, "View")}
+                                    >
+                                        View Schedule
+                                    </button>
+                                    <button
+                                        className="manage-btn"
+                                        onClick={() => handleCardOpen(program, "Manage")}
+                                    >
+                                        Manage
+                                    </button>
                                 </div>
                             </div>
                         );
@@ -127,6 +154,13 @@ export default function Programs() {
             </div>
 
             {isCreateProgram && <CreateProgram onClose={handleCreateProgramClose} />}
+            {isOpenCard && (
+                <ProgramCard
+                    program={selectedProgram}
+                    actionType={actionType}
+                    onClose={handleCardClose}
+                />
+            )}
         </div>
     );
 }

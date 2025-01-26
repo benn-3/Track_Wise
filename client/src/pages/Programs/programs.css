@@ -23,7 +23,8 @@
 
 .programs-header-text {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
 }
 
 .programs-title {

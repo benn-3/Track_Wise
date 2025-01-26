@@ -19,6 +19,8 @@
   font-size: 1.7em;
   font-weight: 650;
   color: #333;
+  display: flex;
+  align-items: center;
 }
 
 .dashboard-info-cards {
@@ -53,10 +55,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-padding: 0.5rem;
+  padding: 0.5rem;
   aspect-ratio: 1;
   border-radius: 5px;
-
 }
 
 .dashboard-card-icon-container.users {
@@ -253,7 +254,6 @@ padding: 0.5rem;
   font-size: 1em;
 }
 
-
 .status-completed {
   background-color: #dcfce7;
   color: #186635;
@@ -267,4 +267,11 @@ padding: 0.5rem;
 .status-in-progress {
   background-color: #fef3c7;
   color: #d97706;
+}
+
+.vertical-bar-title {
+  height: 1.7rem;
+  width: 0.2rem;
+  background-color: #7e5cad;
+  margin-right: 0.5em;
 }

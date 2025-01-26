@@ -5,7 +5,6 @@ const initialState = {
     token: null,
     isAuthenticated: false,
     role: null,
-    id: null
 }
 
 export default function authReducer(state = initialState, action) {

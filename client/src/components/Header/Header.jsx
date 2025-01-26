@@ -9,23 +9,8 @@ export default function Header() {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const user = useSelector((state) => state.auth.user);
-  const role = () => {
-    if (user) {
-      if (user.adminId) {
-        return 'Admin'
-      }
-      else if (user.trainerId) {
-        return 'Teacher'
-      }
-    }
-    else {
-      return ""
-    }
-  }
+  const role = useSelector((state) => state.auth.role);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
 
   return (
     <div className="header-container">

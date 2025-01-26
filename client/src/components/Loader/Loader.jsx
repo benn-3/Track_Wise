@@ -9,7 +9,8 @@ export default function Loader() {
                 alignItems: 'center',
                 height: '100vh',
                 width: '100vw',
-                zIndex: "100000"
+                zIndex: "100000",
+                position:"absolute"
             }}
         >
             <Mosaic color="#4635B1" size="large" text="" textColor="" />

@@ -698,6 +698,18 @@
 }
 
 .trainers-table-status-container {
-  min-width: 10rem;
+  width: 13rem;
 
+}
+
+.trainers-table-status-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500; 
+  font-size: 0.9rem;
+  text-align: center;
+  min-width: 150px; 
 }

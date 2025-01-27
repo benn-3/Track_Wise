@@ -149,7 +149,7 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                 <div className="trainer-preview-modal__form-group">
                     <label>
                         <Mail style={{ marginRight: '8px' }} />
-                        Email
+                        Address
                     </label>
                     <textarea
                         type="text"
@@ -190,15 +190,17 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                         <BookOpen style={{ marginRight: '8px' }} />
                         Programs Assigned
                     </label>
-                    <ul className="trainer-preview-modal__programs-list">
+                    <ul className="trainer-preview-modal__programs-list" >
                         {formData.programsAssigned?.length > 0 ? (
                             formData.programsAssigned.map((program, index) => (
                                 <li key={program._id || index} style={{
                                     display: "flex",
                                     width: "100%",
-                                    gap: "0.5rem"
+                                    gap: "0.5rem",
+                                    marginBottom:"0.5rem"
+                                
                                 }} className="trainer-preview-modal__program-item">
-                                    <strong>{index + 1}.{program.name}</strong> - <div>{program.description}</div>
+                                    <strong>{index + 1}.{program.name}</strong> - <div>{program.programStatus}</div>
                                 </li>
                             ))
                         ) : (

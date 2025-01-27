@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { Mail, Lock, User, Phone } from "lucide-react";
 import { adminSignin, adminSignup } from "../../services/AdminOperations";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setAuthState } from "../../redux/actions/authActions";
 import { showToast } from "../../hooks/useToast";
 
 export default function AdminAuthCard() {
@@ -21,8 +18,7 @@ export default function AdminAuthCard() {
         password: ""
     });
 
-    const navigation = useNavigate()
-    const dispatch = useDispatch()
+
 
 
     const handleSignupChange = (e) => {
@@ -46,10 +42,10 @@ export default function AdminAuthCard() {
         try {
             const response = await adminSignup(signupData);
 
-            if (response) {
+            if (response.success) {
                 console.log("Signup successful:", response);
                 showToast(response.message, 'success');
-
+                window.location.href = "/login"
             }
         } catch (error) {
             console.error("Signup failed:", error.message || error);
@@ -67,8 +63,7 @@ export default function AdminAuthCard() {
                 console.log("Login successful:", response);
                 localStorage.setItem('Token', response.data.token);
                 showToast("Login successful!", 'success');
-                dispatch(setAuthState(true))
-                navigation("/admin");
+                window.location.href = "/admin"
             } else {
                 console.log("Login failed:", response);
                 showToast("Login failed!", 'error');

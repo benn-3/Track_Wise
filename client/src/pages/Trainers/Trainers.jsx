@@ -119,14 +119,19 @@ export default function Trainers() {
                                     <td>{trainer.name}</td>
                                     <td>{trainer.email}</td>
                                     <td>{trainer.specialization}</td>
-                                    <td>
+                                    <td style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        
+                                    }}>
                                         <div
                                             className={`trainers-table-status-container ${trainer.programsAssigned?.some(
                                                 (program) =>
                                                     program.programStatus?.toLowerCase() === "ongoing"
                                             )
-                                                    ? "trainers-table-status-active"
-                                                    : "trainers-table-status-inactive"
+                                                ? "trainers-table-status-active"
+                                                : "trainers-table-status-inactive"
                                                 }`}
                                         >
                                             {trainer.programsAssigned?.some(

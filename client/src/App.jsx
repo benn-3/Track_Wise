@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Header from "./components/Header/Header";
@@ -19,19 +19,20 @@ function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null)
+  const [role, setRole] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("Token"));
 
   useEffect(() => {
     const checkToken = async () => {
-      const token = localStorage.getItem("Token");
-      if (token) {
+      const storedToken = localStorage.getItem("Token");
+      if (storedToken) {
         try {
-          const response = await checkTokenIsValid(token);
+          const response = await checkTokenIsValid(storedToken);
           if (response?.success) {
             if (response.decoded?.adminId) {
               setRole("admin");
               dispatch(setAuthState(true, "admin", response.decoded.adminId));
-              await getAdmin(token, response.decoded.adminId, dispatch);
+              await getAdmin(storedToken, response.decoded.adminId, dispatch);
             } else if (response.decoded?.trainerId) {
               setRole("trainer");
               dispatch(setAuthState(true, "trainer", response.decoded.trainerId));
@@ -39,11 +40,13 @@ function App() {
           } else {
             dispatch(setAuthState(false));
             localStorage.removeItem("Token");
+            setToken(null);
           }
         } catch (error) {
           console.error("Token validation failed", error);
           dispatch(setAuthState(false));
           localStorage.removeItem("Token");
+          setToken(null);
         }
       } else {
         dispatch(setAuthState(false));
@@ -52,14 +55,11 @@ function App() {
     };
 
     checkToken();
-  }, [dispatch]);
-
-
+  }, [dispatch, token]);
 
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
-
 
   return (
     <div className="App">

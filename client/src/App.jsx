@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { checkTokenIsValid } from "./services/TokenOperations";
 import { useDispatch, useSelector } from "react-redux";
-import { setAdmin, setAuthState } from "./redux/actions/authActions";
+import { setAuthState } from "./redux/actions/authActions";
 import Loader from "./components/Loader/Loader";
 import Feedbacks from "./pages/Feedback/Feedbacks";
 import { getAdmin } from "./services/AdminOperations";
@@ -19,7 +19,6 @@ function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate()
 
   useEffect(() => {
     const checkToken = async () => {
@@ -52,6 +51,10 @@ function App() {
     checkToken();
   }, [dispatch]);
 
+
+  if (loading) {
+    return <Loader />
+  }
 
 
   return (

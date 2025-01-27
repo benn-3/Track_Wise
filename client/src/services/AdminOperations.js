@@ -2,7 +2,7 @@ import axios from "axios";
 import { setAdmin } from "../redux/actions/authActions";
 import { setPrograms, setTrainers } from "../redux/actions/adminActions";
 
-const API_URL = 'http://localhost:7000/api/admin';
+const API_URL = 'http://172.17.0.26:7000/api/admin';
 
 export const getAdmin = async (token, adminId, dispatch) => {
     if (!adminId) {
@@ -140,5 +140,41 @@ export const getAllPrograms = async (token, dispatch) => {
     }
     catch (err) {
         console.error('Error getting all programs:', err.message);
+    }
+}
+
+export const deleteTask = async (token, programId, taskId, dispatch) => {
+    try {
+        const response = await axios.delete(`${API_URL}/delete-task?programId=${programId}&taskId=${taskId}`);
+        console.log(response.data)
+        if (response.status == 200) {
+            await getAllPrograms(token, dispatch)
+            return response.data;
+        }
+        else {
+            return response.data;
+        }
+    }
+    catch (err) {
+        console.error('Error deleting task:', err.message);
+    }
+}
+
+
+export const addTask = async (token, programId,newTaskList,dispatch) => {
+    try {
+        const response = await axios.post(`${API_URL}/add-task`, {
+            programId,
+            newTaskList
+        });
+
+        if (response.status === 200) {
+            await getAllPrograms(token, dispatch)
+            return response.data;
+        }
+
+    }
+    catch (err) {
+        console.error('Error adding task:', err.message);
     }
 }

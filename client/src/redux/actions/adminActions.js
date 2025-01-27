@@ -12,4 +12,4 @@ export const setPrograms = (programs) => {
         type: GET_PROGRAMS,
         payload: programs
     }
-}
+} 

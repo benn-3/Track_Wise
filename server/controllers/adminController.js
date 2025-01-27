@@ -427,6 +427,85 @@ cron.schedule('* * * * * *', async () => {
     }
 });
 
+const deleteTask = async (req, res) => {
+    const { programId, taskId } = req.query;
+
+    const program = await Program.findById(programId);
+
+    if (!program) {
+        return res.status(404).json({
+            success: false, message: 'Program not found'
+        });
+    }
+
+    if (Array.isArray(taskId)) {
+
+        taskId.forEach((id) => {
+            const taskIndex = program.dailyTasks.findIndex(task => task._id.toString() === id);
+
+            if (taskIndex !== -1) {
+                program.dailyTasks.splice(taskIndex, 1);
+            }
+        });
+    } else {
+
+        const taskIndex = program.dailyTasks.findIndex(task => task._id.toString() === taskId);
+
+        if (taskIndex === -1) {
+            return res.status(404).json({
+                success: false, message: 'Task not found'
+            });
+        }
+
+        program.dailyTasks.splice(taskIndex, 1);
+    }
+
+    await program.save();
+
+    return res.json({
+        success: true, message: 'Task(s) deleted successfully'
+    });
+}
+
+const addTask = async (req, res) => {
+    const { programId, newTaskList } = req.body;
+
+    if (!programId || !newTaskList) {
+        return res.status(400).json({
+            success: false,
+            message: 'Program ID and task data are required',
+        });
+    }
+
+    const program = await Program.findById(programId);
+
+    if (!program) {
+        return res.status(404).json({
+            success: false,
+            message: 'Program not found',
+        });
+    }
+
+    
+    const tasksWithRequiredFields = newTaskList.map(task => ({
+        date: task.date,
+        taskName: task.taskName,
+        description: task.taskDescription,  
+        completed: task.completed || false,
+    }));
+
+    program.dailyTasks.push(...tasksWithRequiredFields);
+
+    await program.save();
+
+    return res.json({
+        success: true,
+        message: 'Task added successfully',
+    }); 
+};
+
+
+
 module.exports = {
     adminSignin,
     adminSignup,
@@ -437,5 +516,7 @@ module.exports = {
     deleteTrainer,
     getAdmin,
     addProgram,
-    getAllPrograms
+    getAllPrograms,
+    deleteTask,
+    addTask
 }

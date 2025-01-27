@@ -127,12 +127,11 @@ export default function Programs() {
                                         <div
                                             className="progress-bar"
                                             style={{
-                                                width: `${total === 0 ? 0 : (completed / total) * 100}%`,
+                                                width: `${total === 0 || isNaN(completed) || isNaN(total) ? 0 : (completed / total) * 100}%`,
                                             }}
                                         ></div>
                                     </div>
                                 </div>
-
                                 <div className="program-actions">
                                     <button
                                         className="view-schedule-btn"

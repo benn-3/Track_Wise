@@ -64,11 +64,6 @@ const trainerSchema = new mongoose.Schema({
         }],
         default: [],
     },
-    availability: {
-        type: String,
-        enum: ["Assigned", "Not Assigned"],
-        default: "Not Assigned",
-    },
     createdAt: {
         type: Date,
         default: Date.now,

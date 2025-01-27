@@ -98,29 +98,29 @@ export default function CreateProgram({ onClose }) {
         const programStartDate = new Date(programDetails.startDate);
         const programEndDate = new Date(programDetails.endDate);
     
-        // If the task date is not provided or the task name or description is missing
+        
         if (!taskName || !description || !date) {
             alert("Please fill in all task details.");
             return;
         }
     
-        // Convert task date and end date to Date objects
+        
         const taskStartDate = new Date(date);
         const taskEndDate = endDate ? new Date(endDate) : taskStartDate;
     
-        // Check if the task date is within the program's start and end dates
+        
         if (taskStartDate < programStartDate || taskEndDate > programEndDate) {
             alert("Task date must be within the program's start and end dates.");
             return;
         }
     
-        // Check if end date is before start date
+        
         if (taskEndDate < taskStartDate) {
             alert("End date cannot be before start date.");
             return;
         }
     
-        // Add the task directly without looping over dates
+        
         const newTask = {
             date: taskStartDate.toISOString().split('T')[0],
             taskName,
@@ -128,10 +128,10 @@ export default function CreateProgram({ onClose }) {
             completed: false,
         };
     
-        // Add the new task to the tasks array
+        
         setTasks([...tasks, newTask]);
     
-        // Reset task details
+        
         setTaskDetails({ date: "", taskName: "", description: "", endDate: "" });
     };
     

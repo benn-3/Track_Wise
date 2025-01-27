@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:7000/api/token";
+const API_URL = "http://172.17.0.26:7000/api/token";
 
 export const checkTokenIsValid = async (token) => {
   try {

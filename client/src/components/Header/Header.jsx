@@ -7,7 +7,7 @@ import ProfileModal from '../ProfileModal/ProfileModal';
 
 export default function Header() {
   const [showProfileModal, setShowProfileModal] = useState(false);
-
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const role = useSelector((state) => state.auth.role);
 
@@ -24,7 +24,7 @@ export default function Header() {
       </div>
 
       <div className="header-container-left">
-        <div className="notification-icon-container">
+        <div className="notification-icon-container" onClick={() => setIsNotificationVisible(prev => !prev)}>
           <Bell style={{ cursor: 'pointer' }} color="#333" size="1.7em" />
           <div className="notification-dot"></div>
         </div>
@@ -43,6 +43,11 @@ export default function Header() {
 
       {showProfileModal && <ProfileModal requestClose={() => setShowProfileModal(false)} user={user} role={role} />}
       {showProfileModal && <div className="overlay-2"></div>}
+      {
+        isNotificationVisible && <div className={`notification-container ${isNotificationVisible ? 'visible' : ''}`}>
+          No new notifications!
+        </div>
+      }
     </div>
   );
 }

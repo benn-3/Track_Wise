@@ -123,7 +123,7 @@ export default function Trainers() {
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
-                                        
+
                                     }}>
                                         <div
                                             className={`trainers-table-status-container ${trainer.programsAssigned?.some(

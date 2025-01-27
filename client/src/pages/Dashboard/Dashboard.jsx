@@ -7,11 +7,12 @@ import { getAdmin, getAllPrograms, getAllTrainers } from '../../services/AdminOp
 import Loader from '../../components/Loader/Loader';
 
 export default function Dashboard() {
-  const adminId = useSelector((state) => state.auth.id)
-  const dispatch = useDispatch()
-  const token = localStorage.getItem("Token")
-  const [loading, setLoading] = useState(true)
+  const adminId = useSelector((state) => state.auth.id);
+  const dispatch = useDispatch();
+  const token = localStorage.getItem("Token");
+  const [upcomingProgramCount, setUpcomingProgramCount] = useState(0);
 
+  const { programs, trainers } = useSelector((state) => state.admin);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,8 +24,6 @@ export default function Dashboard() {
           ]);
         } catch (error) {
           console.error("Error fetching data:", error);
-        } finally {
-          setLoading(false);
         }
       }
     };
@@ -32,76 +31,35 @@ export default function Dashboard() {
     fetchData();
   }, [adminId, token, dispatch]);
 
+  const activeTrainers = trainers ? trainers.filter((trainer) =>
+    trainer.programsAssigned.some((program) => program.programStatus === "Ongoing")
+  ).length : 0;
 
-  const combinedData = [
-    { program: 'Web Dev', venue: 'Venue 1', active: 5, completed: 4, completionRate: ((4 / 5) * 100).toFixed(2) },
-    { program: 'App Dev', venue: 'Venue 2', active: 3, completed: 2, completionRate: ((2 / 3) * 100).toFixed(2) },
-    { program: 'Cloud', venue: 'Venue 3', active: 4, completed: 3, completionRate: ((3 / 4) * 100).toFixed(2) },
-    { program: 'Data Science', venue: 'Venue 4', active: 6, completed: 5, completionRate: ((5 / 6) * 100).toFixed(2) },
-    { program: 'AI & ML', venue: 'Venue 5', active: 7, completed: 6, completionRate: ((6 / 7) * 100).toFixed(2) },
-    { program: 'Digital Marketing', venue: 'Venue 6', active: 5, completed: 3, completionRate: ((3 / 5) * 100).toFixed(2) },
-    { program: 'Cyber Security', venue: 'Venue 7', active: 8, completed: 7, completionRate: ((7 / 8) * 100).toFixed(2) },
-    { program: 'Blockchain', venue: 'Venue 8', active: 4, completed: 3, completionRate: ((3 / 4) * 100).toFixed(2) },
-  ];
+  const activePrograms = programs ? programs.filter((program) => program.programStatus === "Ongoing").length : 0;
 
-  const scheduleData = [
-    {
-      id: 1,
-      program: 'Web Development',
-      trainer: 'John Doe',
-      venue: 'Tech Hub - Room 101',
-      time: '9:00 AM - 4:00 PM',
-      status: 'In Progress',
-    },
-    {
-      id: 2,
-      program: 'App Development',
-      trainer: 'Jane Smith',
-      venue: 'Tech Hub - Room 102',
-      time: '10:00 AM - 5:00 PM',
-      status: 'Completed',
-    },
-    {
-      id: 3,
-      program: 'Cloud Computing',
-      trainer: 'Mike Johnson',
-      venue: 'Tech Hub - Room 103',
-      time: '8:30 AM - 4:30 PM',
-      status: 'In Progress',
-    },
-    {
-      id: 4,
-      program: 'Data Science',
-      trainer: 'Sarah Lee',
-      venue: 'Tech Hub - Room 104',
-      time: '9:30 AM - 6:00 PM',
-      status: 'Pending',
-    },
-    {
-      id: 5,
-      program: 'AI & ML',
-      trainer: 'Robert Brown',
-      venue: 'Tech Hub - Room 105',
-      time: '9:00 AM - 4:00 PM',
-      status: 'In Progress',
-    },
-    {
-      id: 6,
-      program: 'Blockchain',
-      trainer: 'Emily Davis',
-      venue: 'Tech Hub - Room 106',
-      time: '10:00 AM - 4:00 PM',
-      status: 'Completed',
-    },
-  ];
+  const completionRate = programs ? ((programs.filter((program) => program.programStatus === "Completed").length / programs.length) * 100).toFixed(2) : 0;
 
+  useEffect(() => {
+    const fetchUpcomingPrograms = async () => {
+      if (programs) {
+        let upcomingProgramCount = 0;
+        programs.forEach((program) => {
+          if (program.programStatus === "Scheduled") {
+            upcomingProgramCount++;
+          }
+        });
+        setUpcomingProgramCount(upcomingProgramCount);
+      }
+    };
+
+    fetchUpcomingPrograms();
+  }, [programs]);
 
   const attendanceData = [
-    { name: 'Present', value: 60 },
-    { name: 'Absent', value: 30 },
-    { name: 'Late', value: 10 },
+    { name: 'Present', value: trainers ? trainers.reduce((acc, trainer) => acc + (trainer.attendance?.filter(a => a.status === 'Present').length || 0), 0) : 0 },
+    { name: 'Absent', value: trainers ? trainers.reduce((acc, trainer) => acc + (trainer.attendance?.filter(a => a.status === 'Absent').length || 0), 0) : 0 },
+    { name: 'Late', value: trainers ? trainers.reduce((acc, trainer) => acc + (trainer.attendance?.filter(a => a.status === 'Late').length || 0), 0) : 0 },
   ];
-
 
 
   const COLORS = ['#4F46E5', '#FCD34D', '#EF4444'];
@@ -120,7 +78,7 @@ export default function Dashboard() {
             </div>
             <div className='dashboard-card-details'>
               <div className='dashboard-card-title'>Active Trainers</div>
-              <div className='dashboard-card-value'>24</div>
+              <div className='dashboard-card-value'>{activeTrainers}</div>
             </div>
           </div>
           <div className="dashboard-info-card">
@@ -129,7 +87,7 @@ export default function Dashboard() {
             </div>
             <div className='dashboard-card-details'>
               <div className='dashboard-card-title'>Active Programs</div>
-              <div className='dashboard-card-value'>8</div>
+              <div className='dashboard-card-value'>{activePrograms}</div>
             </div>
           </div>
           <div className="dashboard-info-card">
@@ -137,8 +95,8 @@ export default function Dashboard() {
               <CheckSquare color="white" size="1.5em" />
             </div>
             <div className='dashboard-card-details'>
-              <div className='dashboard-card-title'>Completed Rate</div>
-              <div className='dashboard-card-value'>86%</div>
+              <div className='dashboard-card-title'>Completion Rate</div>
+              <div className='dashboard-card-value'>{completionRate}%</div>
             </div>
           </div>
           <div className="dashboard-info-card">
@@ -146,78 +104,94 @@ export default function Dashboard() {
               <MapPin color="white" size="1.5em" />
             </div>
             <div className='dashboard-card-details'>
-              <div className='dashboard-card-title'>Active Venue</div>
-              <div className='dashboard-card-value'>12</div>
+              <div className='dashboard-card-title'>Upcoming Programs</div>
+              <div className='dashboard-card-value'>{
+                upcomingProgramCount}</div>
             </div>
           </div>
         </div>
 
-        <div className='dashboard-charts-container'>
-          <div className='dashboard-barchart-container'>
-            <div className='dashboard-chart-title'>Completion Rates</div>
-            <ResponsiveContainer  >
-              <BarChart data={combinedData}>
+
+        <div className="dashboard-charts-container">
+          <div className="dashboard-barchart-container">
+            <div className="dashboard-chart-title">Programs Analytics</div>
+            <ResponsiveContainer>
+              <BarChart
+                data={programs && programs.length > 0
+                  ? programs
+                    .filter(program => program.programStatus === 'Ongoing')
+                    .map(program => {
+                      const totalTasks = program.dailyTasks.length;
+                      const completedTasks = program.dailyTasks.filter(task => task.completed).length;
+                      const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+                      return {
+                        name: program.name,
+                        trainerName: program.trainerAssigned ? program.trainerAssigned.name : 'No trainer assigned',
+                        totalTasks: totalTasks,
+                        completedTasks: completedTasks,
+                        completionRate: completionRate,
+                      };
+                    })
+                  : []
+                }
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="program"
-                  tickFormatter={(value) => `${value}`}
-                />
-                <YAxis />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 100]} />
                 <Tooltip
                   content={({ payload }) => {
-                    if (payload && payload.length) {
-                      const { program, venue, active, completed, completionRate } = payload[0].payload;
-                      return (
-                        <div className="custom-tooltip">
-                          <div><span>Venue:</span> {venue}</div>
-                          <div><span>Program:</span> {program}</div>
-                          <div><span>Active Sessions:</span> {active}</div>
-                          <div><span>Completed:</span> {completed}</div>
-                          <div><span >Completion Rate:</span><span className='completion-rate'> {completionRate}%</span></div>
-                        </div>
-                      );
-                    }
-                    return null;
+                    if (!payload || payload.length === 0) return null;
+                    const { name, trainerName, totalTasks, completedTasks, completionRate } = payload[0].payload;
+                    return (
+                      <div className="custom-tooltip">
+                        <p><strong style={{ marginRight: "0.3rem" }}>Program:</strong> {name}</p>
+                        <p><strong style={{ marginRight: "0.3rem" }}>Trainer:</strong> {trainerName}</p>
+                        <p><strong style={{ marginRight: "0.3rem" }}>Total Tasks:</strong> {totalTasks}</p>
+                        <p><strong style={{ marginRight: "0.3rem" }}>Completed Tasks:</strong> {completedTasks}</p>
+                        <p style={{ color: "#4F46E5" }}><strong style={{ marginRight: "0.3rem" }}>Completion Rate:</strong> {completionRate}%</p>
+                      </div>
+                    );
                   }}
                 />
                 <Bar dataKey="completionRate" fill="#4F46E5" />
               </BarChart>
             </ResponsiveContainer>
+
           </div>
-          <div className='dashbaord-piechart-container'>
-            <div className='dashboard-piechart-title'>Today&apos;s Trainer Attendance</div>
-            <ResponsiveContainer >
+          <div className='dashboard-piechart-container'>
+            <div className='dashboard-piechart-title'>Trainer Attendance</div>
+            <ResponsiveContainer>
               <PieChart>
-                <Pie
-                  data={attendanceData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={120}
-                  fill="#8884d8"
-                >
-                  {attendanceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                  ))}
-                </Pie>
-                <Tooltip />
+                {attendanceData && attendanceData.some(entry => entry.value > 0) ? (
+                  <>
+                    <Pie
+                      data={attendanceData}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={120}
+                      fill="#8884d8"
+                    >
+                      {attendanceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </>
+                ) : (
+                  <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fontSize="18" fill="#555">
+                    No data available
+                  </text>
+                )}
               </PieChart>
             </ResponsiveContainer>
-            <div className='attendance-legend'>
-              <div className='legend-item'>
-                <div className='legend-dot' style={{ backgroundColor: COLORS[0] }}></div>
-                <span>Present (85%)</span>
-              </div>
-              <div className='legend-item'>
-                <div className='legend-dot' style={{ backgroundColor: COLORS[1] }}></div>
-                <span>Late (10%)</span>
-              </div>
-              <div className='legend-item'>
-                <div className='legend-dot' style={{ backgroundColor: COLORS[2] }}></div>
-                <span>Absent (5%)</span>
-              </div>
-            </div>
           </div>
         </div>
+
+
+
+
+
         <div className="dashboard-schedule-container">
           <div className="dashboard-schedule-title">Today&apos;s Training Schedule</div>
           <table className="schedule-table">
@@ -227,32 +201,52 @@ export default function Dashboard() {
                 <th>Program</th>
                 <th>Trainer</th>
                 <th>Venue</th>
-                <th>Time</th>
+                <th>Start Date</th>
+                <th>End Date</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {scheduleData.map((schedule) => (
-                <tr key={schedule.id}>
-                  <td>{schedule.id}</td>
-                  <td>{schedule.program}</td>
-                  <td>{schedule.trainer}</td>
-                  <td>{schedule.venue}</td>
-                  <td>{schedule.time}</td>
-                  <td>
-                    <div
-                      className={`schedule-status-container ${schedule.status === 'Completed'
-                        ? 'status-completed'
-                        : schedule.status === 'Pending'
-                          ? 'status-pending'
-                          : 'status-in-progress'
-                        }`}
-                    >
-                      {schedule.status}
-                    </div>
+              {programs && programs.length > 0 ? (
+                programs
+                  .filter((program) => {
+                    const today = new Date();
+                    const startDate = new Date(program.startDate);
+                    const endDate = new Date(program.endDate);
+
+
+                    return today >= startDate && today <= endDate;
+                  })
+                  .map((program) => {
+                    const assignedTrainer = trainers.find((trainer) =>
+                      trainer.programsAssigned.some((assignedProgram) => assignedProgram._id === program._id)
+                    );
+
+                    return (
+                      <tr key={program.programId}>
+                        <td>{program.programId}</td>
+                        <td>{program.name}</td>
+                        <td>{assignedTrainer ? assignedTrainer.name : 'No trainer assigned'}</td>
+                        <td>{program.venue}</td>
+                        <td>{new Date(program.startDate).toLocaleDateString()}</td>
+                        <td>{new Date(program.endDate).toLocaleDateString()}</td>
+                        <td>
+                          <div className="status-container">
+                            {
+                              program.programStatus
+                            }
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    No programs available for today
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

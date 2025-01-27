@@ -11,7 +11,7 @@ export default function Programs() {
     const [isCreateProgram, setIsCreateProgram] = useState(false);
     const [isOpenCard, setIsOpenCard] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState(null);
-    const [actionType, setActionType] = useState(""); // View or Manage
+    const [actionType, setActionType] = useState("");
 
     const dispatch = useDispatch();
     const token = localStorage.getItem("Token");
@@ -26,6 +26,19 @@ export default function Programs() {
         setLoading(false);
     }, [token, dispatch]);
 
+    
+    useEffect(() => {
+        if (programs && programs.length > 0 && selectedProgram) {
+            const programExists = programs.find((program) => program.programId === selectedProgram.programId);
+            if (!programExists) {
+                setSelectedProgram(null);  
+            } else {
+                setSelectedProgram(programExists);  
+            }
+        }
+    }, [programs, selectedProgram]);
+
+
     const calculateProgress = (dailyTasks) => {
         if (!dailyTasks || !Array.isArray(dailyTasks) || dailyTasks.length === 0) {
             return { completed: 0, total: 0 };
@@ -38,8 +51,7 @@ export default function Programs() {
             if (task.completed) {
                 completedTasks++;
             }
-        }
-        )
+        });
 
         return { completed: completedTasks, total: totalTasks };
     };

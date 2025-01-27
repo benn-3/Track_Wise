@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 
 
 
@@ -14,7 +14,6 @@ export default function ProgramCard({ program, onClose }) {
     const [isEditing, setIsEditing] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
     const [updatedSchedule, setUpdatedSchedule] = useState(program.dailyTasks || []);
-    const [selectedTask, setSelectedTask] = useState(null);
     const token = localStorage.getItem("Token");
     const dispatch = useDispatch();
 
@@ -54,14 +53,11 @@ export default function ProgramCard({ program, onClose }) {
 
 
     useEffect(() => {
-        console.log("Data is Changed " + program)
+        if (program && program.dailyTasks) {
+            setUpdatedSchedule(program.dailyTasks);
+        }
     }, [program]);
 
-
-    const handleTaskClick = (task) => {
-        setSelectedTask(task);
-        console.log(task);
-    };
 
     const handleAddTask = () => {
         setIsAdding(true);
@@ -82,6 +78,12 @@ export default function ProgramCard({ program, onClose }) {
         const response = await addTask(token, program._id, newTaskList, dispatch)
         if (response.success) {
             showToast("Tasks saved successfully", "success");
+            setNewTask({
+                date: "",
+                taskName: "",
+                taskDescription: "",
+            })
+            setNewTaskList([])
         }
         else {
 
@@ -114,14 +116,6 @@ export default function ProgramCard({ program, onClose }) {
         } else {
             showToast("Failed to remove task", "error");
         }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewTask((prevTask) => ({
-            ...prevTask,
-            [name]: value,
-        }));
     };
 
     return (
@@ -207,7 +201,7 @@ export default function ProgramCard({ program, onClose }) {
                                             }
 
                                             return (
-                                                <div key={index} className="schedule-item" onClick={() => handleTaskClick(session)}>
+                                                <div key={index} className="schedule-item" >
                                                     <div className={`program-card-task-status-icon ${iconClass}`}>
                                                         {icon}
                                                     </div>

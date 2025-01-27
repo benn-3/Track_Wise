@@ -5,7 +5,7 @@
 
 import { AlertTriangle, Calendar, CheckCircle, Clock, Save, Trash, X } from "lucide-react";
 import "./programCard.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../hooks/useToast";
 import { addTask, deleteTask } from "../../services/AdminOperations";
@@ -17,6 +17,7 @@ export default function ProgramCard({ program, onClose }) {
     const [selectedTask, setSelectedTask] = useState(null);
     const token = localStorage.getItem("Token");
     const dispatch = useDispatch();
+
 
     const [newTask, setNewTask] = useState({
         date: "",
@@ -50,6 +51,11 @@ export default function ProgramCard({ program, onClose }) {
     }
 
     totalDays = Math.floor((endDate - startDate) / (1000 * 3600 * 24)) + 1;
+
+
+    useEffect(() => {
+        console.log("Data is Changed " + program)
+    }, [program]);
 
 
     const handleTaskClick = (task) => {
@@ -101,8 +107,9 @@ export default function ProgramCard({ program, onClose }) {
 
 
     const handleRemoveTask = async (taskId) => {
-        const response = await deleteTask(token, program._id, taskId);
+        const response = await deleteTask(token, program._id, taskId, dispatch);
         if (response.success) {
+
             showToast("Task removed successfully", "success");
         } else {
             showToast("Failed to remove task", "error");
@@ -157,7 +164,7 @@ export default function ProgramCard({ program, onClose }) {
                                     style={{ width: `${programProgress}%` }}
                                 ></div>
                             </div>
-                            <div style={{ marginTop: "0.5rem",fontStyle:"italic",fontSize:"0.8rem",fontWeight:"500",color:"#7f5ff4" }}>
+                            <div style={{ marginTop: "0.5rem", fontStyle: "italic", fontSize: "0.8rem", fontWeight: "500", color: "#7f5ff4" }}>
                                 {programProgress.toFixed(2)}%
                             </div>
                         </div>
@@ -267,6 +274,9 @@ export default function ProgramCard({ program, onClose }) {
                                                 name="taskDescription"
                                                 value={newTask.taskDescription}
                                                 onChange={(e) => setNewTask({ ...newTask, taskDescription: e.target.value })}
+                                                style={{
+                                                    fontSize: "1rem"
+                                                }}
                                             />
                                         </div>
                                         <button className="program-card-add-new" type="submit">Add Task</button>

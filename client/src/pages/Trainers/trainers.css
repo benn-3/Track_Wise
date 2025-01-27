@@ -205,6 +205,19 @@
   margin-bottom: 1.5rem;
 }
 
+.trainer-preview-modal__form-group textarea {
+  min-height: 1rem;
+  width: 100%;
+  font-family: Montserrat;
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+  color: #333;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
 .trainer-preview-modal__form-group label {
   display: flex;
   margin-bottom: 0.6rem;
@@ -682,4 +695,9 @@
 .no-items-found-text {
   font-size: 1rem;
   align-self: center;
+}
+
+.trainers-table-status-container {
+  min-width: 10rem;
+
 }

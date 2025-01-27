@@ -71,7 +71,9 @@ h3{
   justify-content: start;
 }
 
-
+ textarea{
+  font-family: Montserrat;
+}
 
 .create-program-trainer-label {
   font-size: 1rem;

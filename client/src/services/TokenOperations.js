@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const API_URL = "http://172.17.0.26:7000/api/token";
+const API_URL = "http://192.168.56.1:7000/api/token";
 
 export const checkTokenIsValid = async (token) => {
+  console.log("Checking token validity with:", token); 
   try {
     const response = await axios.get(`${API_URL}/checktokenvalid`, {
       headers: {
@@ -10,12 +11,12 @@ export const checkTokenIsValid = async (token) => {
       },
     });
 
-    if (response.status === 200) {
+    if (response.status === 200 && response.data) {
       console.log("Token is valid:", response.data);
       return response.data;
     } else {
       console.log("Invalid token");
-      return response.data;
+      return { success: false };
     }
   } catch (error) {
     console.error("Error checking token validity:", error.message || error);
@@ -24,3 +25,4 @@ export const checkTokenIsValid = async (token) => {
       : { message: "Error checking token validity" };
   }
 };
+

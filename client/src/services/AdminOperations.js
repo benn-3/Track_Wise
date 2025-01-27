@@ -2,7 +2,7 @@ import axios from "axios";
 import { setAdmin } from "../redux/actions/authActions";
 import { setPrograms, setTrainers } from "../redux/actions/adminActions";
 
-const API_URL = 'http://172.17.0.26:7000/api/admin';
+const API_URL = 'http://192.168.56.1:7000/api/admin';
 
 export const getAdmin = async (token, adminId, dispatch) => {
     if (!adminId) {
@@ -161,7 +161,7 @@ export const deleteTask = async (token, programId, taskId, dispatch) => {
 }
 
 
-export const addTask = async (token, programId,newTaskList,dispatch) => {
+export const addTask = async (token, programId, newTaskList, dispatch) => {
     try {
         const response = await axios.post(`${API_URL}/add-task`, {
             programId,

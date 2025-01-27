@@ -19,6 +19,7 @@ function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null)
 
   useEffect(() => {
     const checkToken = async () => {
@@ -26,11 +27,13 @@ function App() {
       if (token) {
         try {
           const response = await checkTokenIsValid(token);
-          if (response.success) {
-            if (response.decoded.adminId) {
+          if (response?.success) {
+            if (response.decoded?.adminId) {
+              setRole("admin");
               dispatch(setAuthState(true, "admin", response.decoded.adminId));
               await getAdmin(token, response.decoded.adminId, dispatch);
-            } else if (response.decoded.trainerId) {
+            } else if (response.decoded?.trainerId) {
+              setRole("trainer");
               dispatch(setAuthState(true, "trainer", response.decoded.trainerId));
             }
           } else {
@@ -50,6 +53,7 @@ function App() {
 
     checkToken();
   }, [dispatch]);
+
 
 
   if (loading) {

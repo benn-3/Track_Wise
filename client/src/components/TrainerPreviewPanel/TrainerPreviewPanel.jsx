@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X, Check, Trash, Edit, User, Mail, Award, Clipboard, Activity, Plus } from 'lucide-react';
+import { X, Check, Trash, Edit, User, Mail, Award, Clipboard, Activity, Plus, Phone, BookOpen } from 'lucide-react';
 import { editTrainer, deleteTrainer } from '../../services/AdminOperations';
 import { showToast } from '../../hooks/useToast';
 
@@ -134,6 +134,34 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                 </div>
                 <div className="trainer-preview-modal__form-group">
                     <label>
+                        <Phone style={{ marginRight: '8px' }} />
+                        Phone
+                    </label>
+                    <input
+                        type="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="Enter trainer's phone"
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className="trainer-preview-modal__form-group">
+                    <label>
+                        <Mail style={{ marginRight: '8px' }} />
+                        Email
+                    </label>
+                    <textarea
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="Enter trainer's address"
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className="trainer-preview-modal__form-group">
+                    <label>
                         <Award style={{ marginRight: '8px' }} />
                         Specialization
                     </label>
@@ -149,40 +177,33 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                 <div className="trainer-preview-modal__form-group">
                     <label>
                         <Clipboard style={{ marginRight: '8px' }} />
-                        Program
-                    </label>
-                    <input
-                        type="text"
-                        name="program"
-                        value={formData.program}
-                        placeholder="Trainer's program"
-                        disabled={true}
-                    />
-                </div>
-                <div className="trainer-preview-modal__form-group">
-                    <label>
-                        <Activity style={{ marginRight: '8px' }} />
-                        Availability
-                    </label>
-                    <input
-                        type="text"
-                        name="status"
-                        value={formData.availability}
-                        onChange={handleChange}
-                        placeholder="Trainer's status"
-                        disabled={!isEditing}
-                    />
-                </div>
-
-                <div className="trainer-preview-modal__form-group">
-                    <label>
-                        <Clipboard style={{ marginRight: '8px' }} />
                         Attendance
                     </label>
                     <ul className="trainer-preview-panel__attendance-list">
                         <li className="trainer-preview-panel__attendance-item">Present: {present}</li>
                         <li className="trainer-preview-panel__attendance-item">Absent: {absent}</li>
                         <li className="trainer-preview-panel__attendance-item">Late: {late}</li>
+                    </ul>
+                </div>
+                <div className="trainer-preview-modal__form-group">
+                    <label>
+                        <BookOpen style={{ marginRight: '8px' }} />
+                        Programs Assigned
+                    </label>
+                    <ul className="trainer-preview-modal__programs-list">
+                        {formData.programsAssigned?.length > 0 ? (
+                            formData.programsAssigned.map((program, index) => (
+                                <li key={program._id || index} style={{
+                                    display: "flex",
+                                    width: "100%",
+                                    gap: "0.5rem"
+                                }} className="trainer-preview-modal__program-item">
+                                    <strong>{index + 1}.{program.name}</strong> - <div>{program.description}</div>
+                                </li>
+                            ))
+                        ) : (
+                            <li>No programs assigned.</li>
+                        )}
                     </ul>
                 </div>
 

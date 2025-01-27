@@ -108,7 +108,7 @@ export default function Trainers() {
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Specialization</th>
-                                <th>Availability</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -121,12 +121,23 @@ export default function Trainers() {
                                     <td>{trainer.specialization}</td>
                                     <td>
                                         <div
-                                            className={`trainers-table-status-container ${trainer.availability && trainer.availability.toLowerCase() === "assigned"
-                                                ? "trainers-table-status-active"
-                                                : "trainers-table-status-inactive"
+                                            className={`trainers-table-status-container ${trainer.programsAssigned?.some(
+                                                (program) =>
+                                                    program.programStatus?.toLowerCase() === "ongoing"
+                                            )
+                                                    ? "trainers-table-status-active"
+                                                    : "trainers-table-status-inactive"
                                                 }`}
                                         >
-                                            {trainer.availability || "N/A"}
+                                            {trainer.programsAssigned?.some(
+                                                (program) =>
+                                                    program.programStatus?.toLowerCase() === "ongoing"
+                                            )
+                                                ? `Assigned (${trainer.programsAssigned.filter(
+                                                    (program) =>
+                                                        program.programStatus?.toLowerCase() === "ongoing"
+                                                ).length} Ongoing)`
+                                                : "Not Assigned"}
                                         </div>
                                     </td>
                                     <td>

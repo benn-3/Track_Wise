@@ -32,14 +32,14 @@ export default function Programs() {
         }
 
         let completedTasks = 0;
-        let totalTasks = 0;
+        let totalTasks = dailyTasks.length;
 
-        dailyTasks.forEach((taskDay) => {
-            if (taskDay.tasks && Array.isArray(taskDay.tasks)) {
-                totalTasks += taskDay.tasks.length;
-                completedTasks += taskDay.tasks.filter((task) => task.completed).length;
+        dailyTasks.forEach((task) => {
+            if (task.completed) {
+                completedTasks++;
             }
-        });
+        }
+        )
 
         return { completed: completedTasks, total: totalTasks };
     };

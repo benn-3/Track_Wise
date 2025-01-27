@@ -97,44 +97,44 @@ export default function CreateProgram({ onClose }) {
         const { taskName, description, date, endDate } = taskDetails;
         const programStartDate = new Date(programDetails.startDate);
         const programEndDate = new Date(programDetails.endDate);
-    
-        
+
+
         if (!taskName || !description || !date) {
             alert("Please fill in all task details.");
             return;
         }
-    
-        
+
+
         const taskStartDate = new Date(date);
         const taskEndDate = endDate ? new Date(endDate) : taskStartDate;
-    
-        
+
+
         if (taskStartDate < programStartDate || taskEndDate > programEndDate) {
             alert("Task date must be within the program's start and end dates.");
             return;
         }
-    
-        
+
+
         if (taskEndDate < taskStartDate) {
             alert("End date cannot be before start date.");
             return;
         }
-    
-        
+
+
         const newTask = {
             date: taskStartDate.toISOString().split('T')[0],
             taskName,
             description,
             completed: false,
         };
-    
-        
+
+
         setTasks([...tasks, newTask]);
-    
-        
+
+
         setTaskDetails({ date: "", taskName: "", description: "", endDate: "" });
     };
-    
+
 
 
 
@@ -179,10 +179,10 @@ export default function CreateProgram({ onClose }) {
             </div>
 
             <form className="create-program-form" onSubmit={handleSubmit}>
-                {/* Error Message */}
+
                 {error && <p className="error-text">{error}</p>}
 
-                {/* Program Title */}
+
                 <div className="form-group">
                     <label htmlFor="name">Program Name *</label>
                     <input
@@ -196,7 +196,7 @@ export default function CreateProgram({ onClose }) {
                     />
                 </div>
 
-                {/* Program Description */}
+
                 <div className="form-group">
                     <label htmlFor="description">Program Description *</label>
                     <textarea
@@ -207,12 +207,13 @@ export default function CreateProgram({ onClose }) {
                         onChange={handleChange}
                         required
                         style={{
-                            fontFamily: "Montserrat"
+                            fontFamily: "Montserrat",
+                            
                         }}
                     />
                 </div>
 
-                {/* Start Date */}
+
                 <div className="form-group">
                     <label htmlFor="startDate">Start Date *</label>
                     <input
@@ -225,7 +226,7 @@ export default function CreateProgram({ onClose }) {
                     />
                 </div>
 
-                {/* End Date */}
+
                 <div className="form-group">
                     <label htmlFor="endDate">End Date *</label>
                     <input
@@ -238,7 +239,7 @@ export default function CreateProgram({ onClose }) {
                     />
                 </div>
 
-                {/* Venue */}
+
                 <div className="form-group">
                     <label htmlFor="venue">Venue *</label>
                     <input
@@ -252,7 +253,7 @@ export default function CreateProgram({ onClose }) {
                     />
                 </div>
 
-                {/* Trainer Assignment */}
+
                 <div className="form-group">
                     <label htmlFor="trainerAssigned">Trainer Assigned *</label>
                     <select
@@ -273,7 +274,7 @@ export default function CreateProgram({ onClose }) {
                     </select>
                 </div>
 
-                {/* Location */}
+
                 <div className="form-group">
                     <label htmlFor="location">Location *</label>
                     <input
@@ -287,7 +288,6 @@ export default function CreateProgram({ onClose }) {
                     />
                 </div>
 
-                {/* Daily Tasks */}
                 <div className="daily-task-section">
                     <h3>Schedule Daily Tasks</h3>
                     <h5 style={{ color: 'red', fontWeight: "600" }}>

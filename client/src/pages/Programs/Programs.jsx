@@ -26,7 +26,6 @@ export default function Programs() {
         setLoading(false);
     }, [token, dispatch]);
 
-    
     useEffect(() => {
         if (programs && programs.length > 0 && selectedProgram) {
             const programExists = programs.find((program) => program.programId === selectedProgram.programId);
@@ -37,7 +36,6 @@ export default function Programs() {
             }
         }
     }, [programs, selectedProgram]);
-
 
     const calculateProgress = (dailyTasks) => {
         if (!dailyTasks || !Array.isArray(dailyTasks) || dailyTasks.length === 0) {
@@ -76,6 +74,16 @@ export default function Programs() {
         setActionType("");
     };
 
+    const sortPrograms = (programs) => {
+        const ongoing = programs.filter((program) => program.programStatus === "Ongoing");
+        const scheduled = programs.filter((program) => program.programStatus === "Scheduled");
+        const completed = programs.filter((program) => program.programStatus === "Completed");
+
+        return [...ongoing, ...scheduled, ...completed];
+    };
+
+    const sortedPrograms = sortPrograms(programs);
+
     return (
         <div className="programs-container">
             <div className="programs-header">
@@ -101,8 +109,8 @@ export default function Programs() {
             {isCreateProgram && <div className="overlay" onClick={handleCreateProgramClose}></div>}
 
             <div className="programs-content">
-                {programs && programs.length !== 0 ? (
-                    programs.map((program, index) => {
+                {sortedPrograms && sortedPrograms.length !== 0 ? (
+                    sortedPrograms.map((program, index) => {
                         const { completed, total } = calculateProgress(program.dailyTasks);
 
                         return (

@@ -4,6 +4,7 @@ import TrainerIllustration from "../../assets/illustrations/employee-works-on-de
 import AdminIllustration from "../../assets/illustrations/businessman-is-doing-market-research.svg";
 import TrainerAuthCard from "../../components/TrainerAuthCard/TrainerAuthCard";
 import AdminAuthCard from "../../components/AdminAuthCard/AdminAuthCard";
+import { Shield, Users } from "lucide-react";
 
 export default function AuthPage() {
     const [isTrainer, setIsTrainer] = useState(false);
@@ -20,12 +21,18 @@ export default function AuthPage() {
                     className={`admin-switch-button ${!isTrainer ? "active" : ""}`}
                     onClick={toggleRole}
                 >
+                    <Shield style={{
+                        marginRight: "0.3rem"
+                    }} size={"1.3rem"} />
                     Admin
                 </div>
                 <div
                     className={`trainer-switch-button ${isTrainer ? "active" : ""}`}
                     onClick={toggleRole}
                 >
+                    <Users style={{
+                        marginRight: "0.3rem"
+                    }} size={"1.3rem"} />
                     Trainer
                 </div>
             </div>

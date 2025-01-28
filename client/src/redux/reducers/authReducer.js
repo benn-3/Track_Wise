@@ -1,10 +1,11 @@
-import { SET_ADMIN, SET_AUTH_STATE } from "../types"
+import { SET_ADMIN, SET_AUTH_STATE, SET_TRAINER_DATA } from "../types"
 
 const initialState = {
     user: null,
     token: null,
     isAuthenticated: false,
     role: null,
+    id: null
 }
 
 export default function authReducer(state = initialState, action) {
@@ -20,6 +21,12 @@ export default function authReducer(state = initialState, action) {
             return {
                 ...state,
                 user: action.payload.adminProfile,
+            }
+        case SET_TRAINER_DATA:
+            return {
+            
+                ...state,
+                user: action.payload,
             }
         default:
             return state

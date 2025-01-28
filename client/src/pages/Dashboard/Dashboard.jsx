@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BarChart, Bar, XAxis, YAxis, Pie, Cell, CartesianGrid, PieChart, Tooltip, ResponsiveContainer } from 'recharts';
 import { getAdmin, getAllPrograms, getAllTrainers } from '../../services/AdminOperations';
 import Loader from '../../components/Loader/Loader';
+import { showToast } from '../../hooks/useToast';
 
 export default function Dashboard() {
   const adminId = useSelector((state) => state.auth.id);
@@ -12,7 +13,11 @@ export default function Dashboard() {
   const token = localStorage.getItem("Token");
   const [upcomingProgramCount, setUpcomingProgramCount] = useState(0);
 
+  const [completionRate, setCompletionRates] = useState(0);
+
   const { programs, trainers } = useSelector((state) => state.admin);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,7 +42,44 @@ export default function Dashboard() {
 
   const activePrograms = programs ? programs.filter((program) => program.programStatus === "Ongoing").length : 0;
 
-  const completionRate = programs ? ((programs.filter((program) => program.programStatus === "Completed").length / programs.length) * 100).toFixed(2) : 0;
+  useEffect(() => {
+    const calculateCompletionRate = () => {
+      if (programs) {
+
+        const ongoingPrograms = programs.filter(
+          (program) => program.programStatus === "Ongoing"
+        );
+
+
+        let totalTasks = 0;
+        ongoingPrograms.forEach((program) => {
+          totalTasks += program.dailyTasks.length;
+        });
+
+
+        let completedTasks = 0;
+        ongoingPrograms.forEach((program) => {
+          program.dailyTasks.forEach((task) => {
+            if (task.completed) {
+              completedTasks += 1;
+            }
+          });
+        });
+
+
+        const completionRate =
+          totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+        console.log("Total Tasks:", totalTasks);
+        console.log("Completed Tasks:", completedTasks);
+        console.log("Completion Rate:", completionRate.toFixed(2) + "%");
+
+        setCompletionRates(completionRate.toFixed(2))
+      }
+    };
+
+    calculateCompletionRate();
+  }, [programs]);
 
   useEffect(() => {
     const fetchUpcomingPrograms = async () => {
@@ -131,6 +173,7 @@ export default function Dashboard() {
                         totalTasks: totalTasks,
                         completedTasks: completedTasks,
                         completionRate: completionRate,
+                        programStatus: program.programStatus,
                       };
                     })
                   : []
@@ -142,14 +185,18 @@ export default function Dashboard() {
                 <Tooltip
                   content={({ payload }) => {
                     if (!payload || payload.length === 0) return null;
-                    const { name, trainerName, totalTasks, completedTasks, completionRate } = payload[0].payload;
+                    const { name, trainerName, totalTasks, completedTasks, completionRate,programStatus } = payload[0].payload;
                     return (
                       <div className="custom-tooltip">
                         <p><strong style={{ marginRight: "0.3rem" }}>Program:</strong> {name}</p>
                         <p><strong style={{ marginRight: "0.3rem" }}>Trainer:</strong> {trainerName}</p>
+                        <p>
+                  <strong style={{ marginRight: "0.3rem" }}>Status:</strong>{" "}
+                  {programStatus}
+                </p>
                         <p><strong style={{ marginRight: "0.3rem" }}>Total Tasks:</strong> {totalTasks}</p>
                         <p><strong style={{ marginRight: "0.3rem" }}>Completed Tasks:</strong> {completedTasks}</p>
-                        <p style={{ color: "#4F46E5" }}><strong style={{ marginRight: "0.3rem" }}>Completion Rate:</strong> {completionRate}%</p>
+                        <p style={{ color: "#4F46E5" }}><strong style={{ marginRight: "0.3rem" }}>Completion Rate:</strong> {completionRate.toFixed(2)}%</p>
                       </div>
                     );
                   }}
@@ -218,7 +265,7 @@ export default function Dashboard() {
                     return today >= startDate && today <= endDate;
                   })
                   .map((program) => {
-                    const assignedTrainer = trainers.find((trainer) =>
+                    const assignedTrainer = trainers?.find((trainer) =>
                       trainer.programsAssigned.some((assignedProgram) => assignedProgram._id === program._id)
                     );
 

@@ -1,9 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://192.168.56.1:7000/api/token";
+const API_URL = "http://192.168.1.5:7000/api/token";
 
 export const checkTokenIsValid = async (token) => {
-  console.log("Checking token validity with:", token); 
   try {
     const response = await axios.get(`${API_URL}/checktokenvalid`, {
       headers: {

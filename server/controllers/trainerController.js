@@ -1,170 +1,135 @@
 const Trainer = require("../models/trainerSchema");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Program = require("../models/programSchema");
 
-const createTrainer = async (req, res) => {
+
+const getTrainer = async (req, res) => {
   try {
-    const { name, email, age, gender, phone, expertise, programsAssigned } =
-      req.body;
-
-    if (!name || !email || !age || !gender || !phone || !expertise) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required.",
-      });
-    }
-
-    const trainer = new Trainer({
-      name,
-      email,
-      age,
-      gender,
-      phone,
-      expertise,
-      programsAssigned,
-    });
-
-    await trainer.save();
-
-    res.status(201).json({
-      success: true,
-      message: "Trainer created successfully.",
-      trainer,
-    });
-  } catch (error) {
-    console.error(error);
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error.",
-        error: error.message,
-      });
-    }
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "Trainer with this email already exists.",
-      });
-    }
-    res.status(500).json({
-      success: false,
-      message: "Failed to create trainer.",
-      error: error.message,
-    });
-  }
-};
-
-const getAllTrainers = async (req, res) => {
-  try {
-    const trainers = await Trainer.find();
-    res.status(200).json({
-      success: true,
-      trainers,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch trainers.",
-      error: error.message,
-    });
-  }
-};
-
-const getTrainerById = async (req, res) => {
-  try {
-    const trainer = await Trainer.findById(req.params.id);
+    console.log(req)
+    const trainer = await Trainer.findById(req.query.trainerId);
+    console.log(trainer)
     if (!trainer) {
-      return res.status(404).json({
-        success: false,
-        message: "Trainer not found.",
-      });
+      return res.status(404).json({ message: "Trainer not found" });
     }
     res.status(200).json({
+      trainer: trainer,
+      success: true
+    });
+  }
+  catch (err) {
+    res.status(500).json({ message: "Error fetching trainer" });
+  }
+}
+
+const trainerLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body.formData;
+
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+
+    const trainer = await Trainer.findOne({ email });
+    if (!trainer) {
+      return res.status(404).json({ message: "Trainer not found" });
+    }
+
+
+    const isPasswordValid = await bcrypt.compare(password, trainer.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+
+    const token = jwt.sign(
+      { trainerId: trainer._id, email: trainer.email },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+
+    res.status(200).json({
+      message: "Login successful",
+      success: true,
+      token,
+      trainer: {
+        email: trainer.email,
+        name: trainer.name,
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+const getTrainerData = async (req, res) => {
+  try {
+    const trainerId = req.query.trainerId;
+    const trainer = await Trainer.findById(trainerId).select('-password').populate("programsAssigned");
+    if (!trainer) {
+      return res.status(404).json({ success: false, message: "Trainer not found" });
+    }
+    return res.status(200).json({
+      message: "Trainer data retrieved successfully",
       success: true,
       trainer,
     });
   } catch (error) {
     console.error(error);
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid trainer ID format.",
-      });
-    }
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch trainer.",
-      error: error.message,
-    });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
-const updateTrainer = async (req, res) => {
+const markTaskCompleted = async (req, res) => {
+  const { programId, trainerId, taskId } = req.body;
+
+  console.log( programId, trainerId, taskId)
+
   try {
-    const updatedTrainer = await Trainer.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!updatedTrainer) {
-      return res.status(404).json({
-        success: false,
-        message: "Trainer not found.",
-      });
+    
+    const program = await Program.findById(programId);
+
+    if (!program) {
+      return res.status(404).json({ success: false, message: "Program not found" });
     }
-    res.status(200).json({
-      success: true,
-      message: "Trainer updated successfully.",
-      trainer: updatedTrainer,
-    });
+
+    
+    if (program.trainerAssigned.toString() !== trainerId) {
+      return res.status(403).json({ success: false, message: "Trainer not assigned to this program" });
+    }
+
+    
+    const taskIndex = program.dailyTasks.findIndex(task => task._id.toString() === taskId);
+
+    
+    console.log("Program:", program);
+    console.log("Task Index:", taskIndex);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({ success: false, message: "Task not found" });
+    }
+
+    
+    program.dailyTasks[taskIndex].completed = true;
+
+    
+    console.log("Updated Task:", program.dailyTasks[taskIndex]);
+
+    
+    await program.save();
+
+    
+    return res.status(200).json({ success: true, message: "Task marked as completed", program });
   } catch (error) {
     console.error(error);
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid trainer ID format.",
-      });
-    }
-    res.status(500).json({
-      success: false,
-      message: "Failed to update trainer.",
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-const deleteTrainer = async (req, res) => {
-  try {
-    const deletedTrainer = await Trainer.findByIdAndDelete(req.params.id);
-    if (!deletedTrainer) {
-      return res.status(404).json({
-        success: false,
-        message: "Trainer not found.",
-      });
-    }
-    res.status(200).json({
-      success: true,
-      message: "Trainer deleted successfully.",
-    });
-  } catch (error) {
-    console.error(error);
-    if (error.name === "CastError") {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid trainer ID format.",
-      });
-    }
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete trainer.",
-      error: error.message,
-    });
-  }
-};
 
-module.exports = {
-  createTrainer,
-  getAllTrainers,
-  getTrainerById,
-  updateTrainer,
-  deleteTrainer,
-};
+
+module.exports = { trainerLogin, getTrainer, getTrainerData, markTaskCompleted };

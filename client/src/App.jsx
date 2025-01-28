@@ -14,6 +14,8 @@ import { setAuthState } from "./redux/actions/authActions";
 import Loader from "./components/Loader/Loader";
 import Feedbacks from "./pages/Feedback/Feedbacks";
 import { getAdmin } from "./services/AdminOperations";
+import TrainerDashboard from "./pages/TrainerDashboard/TrainerDashboard";
+import { getTrainer } from "./services/TrainerOperations";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -24,47 +26,60 @@ function App() {
 
   useEffect(() => {
     const checkToken = async () => {
-      const storedToken = localStorage.getItem("Token");
-      if (storedToken) {
-        try {
-          const response = await checkTokenIsValid(storedToken);
-          if (response?.success) {
-            if (response.decoded?.adminId) {
-              setRole("admin");
-              dispatch(setAuthState(true, "admin", response.decoded.adminId));
-              await getAdmin(storedToken, response.decoded.adminId, dispatch);
-            } else if (response.decoded?.trainerId) {
-              setRole("trainer");
-              dispatch(setAuthState(true, "trainer", response.decoded.trainerId));
+        const storedToken = localStorage.getItem("Token");
+        if (storedToken) {
+            try {
+                const response = await checkTokenIsValid(storedToken);
+                if (response?.success) {
+                    if (response.decoded?.adminId) {
+                        setRole("admin");
+                        dispatch(setAuthState(true, "admin", response.decoded.adminId));
+                        await getAdmin(storedToken, response.decoded.adminId, dispatch);
+                    } else if (response.decoded?.trainerId) {
+                        setRole("trainer");
+                        dispatch(setAuthState(true, "trainer", response.decoded.trainerId));
+                        getTrainer(storedToken, response.decoded.trainerId, dispatch);
+                       
+                    }
+                } else {
+                    dispatch(setAuthState(false));
+                    localStorage.removeItem("Token");
+                    setToken(null);
+                }
+            } catch (error) {
+                console.error("Token validation failed", error);
+                dispatch(setAuthState(false));
+                localStorage.removeItem("Token");
+                setToken(null);
             }
-          } else {
-            dispatch(setAuthState(false));
-            localStorage.removeItem("Token");
-            setToken(null);
-          }
-        } catch (error) {
-          console.error("Token validation failed", error);
-          dispatch(setAuthState(false));
-          localStorage.removeItem("Token");
-          setToken(null);
+        } else {
+            dispatch(setAuthState(false, null, null));
+            setRole(null);
         }
-      } else {
-        dispatch(setAuthState(false));
-      }
-      setLoading(false);
+        setLoading(false);
     };
 
     checkToken();
-  }, [dispatch, token]);
+}, [dispatch, token]);
 
   if (loading) {
     return <Loader />;
   }
 
+  if (!token) {
+    return (
+      <Routes>
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/signup" element={<AuthPage />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className="App">
-      <Toaster />
-      {isAuthenticated ? (
+     
+      {isAuthenticated && role === "admin" ? (
         <>
           <Sidebar />
           <div className="main-container">
@@ -75,16 +90,18 @@ function App() {
               <Route path="/programs" element={<Programs />} />
               <Route path="/feedbacks" element={<Feedbacks />} />
               <Route path="*" element={<Navigate to={"/admin"} />} />
+              <Route path="*" element={<Navigate to="/admin" />} />
             </Routes>
           </div>
         </>
-      ) : (
-        <Routes>
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/signup" element={<AuthPage />} />
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      )}
+      ) : isAuthenticated && role === "trainer" ? (
+        <div>
+          <Routes>
+            <Route path="/trainer" element={<TrainerDashboard />} />
+            <Route path="*" element={<Navigate to="/trainer" />} />
+          </Routes>
+        </div>
+      ) : null}
     </div>
   );
 }

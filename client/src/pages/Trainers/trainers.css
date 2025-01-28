@@ -3,7 +3,7 @@
   flex: 1;
   flex-direction: column;
   width: 100%;
-  overflow-y: scroll;
+ overflow: hidden;
   background-color: #f9fafb;
   padding: 1.5em;
 }
@@ -52,6 +52,11 @@
   flex: 1;
   margin-top: 2.5rem;
   align-items: center;
+  overflow-y: scroll;
+}
+
+.trainers-content::-webkit-scrollbar{
+  display: none;
 }
 
 .trainers-table {

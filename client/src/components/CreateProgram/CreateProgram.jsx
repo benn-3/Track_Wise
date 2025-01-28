@@ -54,12 +54,7 @@ export default function CreateProgram({ onClose }) {
                     const newProgramStartDate = new Date(programDetails.startDate);
                     const newProgramEndDate = new Date(programDetails.endDate);
 
-                    console.log(`Checking date overlap for program: ${program.name}`);
-                    console.log("Assigned Program Start Date:", programStartDate);
-                    console.log("Assigned Program End Date:", programEndDate);
-                    console.log("New Program Start Date:", newProgramStartDate);
-                    console.log("New Program End Date:", newProgramEndDate);
-
+                    
                     const hasConflict =
                         (newProgramStartDate >= programStartDate && newProgramStartDate <= programEndDate) ||
                         (newProgramEndDate >= programStartDate && newProgramEndDate <= programEndDate) ||
@@ -142,6 +137,15 @@ export default function CreateProgram({ onClose }) {
         e.preventDefault();
         const { name, startDate, endDate, venue, trainerAssigned, location, description } = programDetails;
 
+
+        const programStartDate = new Date(startDate);
+        const programEndDate = new Date(endDate);
+
+        if (programEndDate < programStartDate) {
+            setError("End date cannot be earlier than the start date.");
+            return;
+        }
+
         if (!name || !startDate || !endDate || !venue || !trainerAssigned || !location || !description) {
             setError("Please fill in all required fields.");
             return;
@@ -170,6 +174,7 @@ export default function CreateProgram({ onClose }) {
             alert("Failed to add program. Please try again.");
         }
     };
+
 
     return (
         <div className="create-program-container">
@@ -208,7 +213,7 @@ export default function CreateProgram({ onClose }) {
                         required
                         style={{
                             fontFamily: "Montserrat",
-                            
+
                         }}
                     />
                 </div>

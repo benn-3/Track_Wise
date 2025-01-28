@@ -7,6 +7,11 @@ const { Op } = require('sequelize');
 const Program = require("../models/programSchema");
 const cron = require('node-cron');
 const moment = require('moment');
+const sgMail = require('@sendgrid/mail');
+const crypto = require('crypto');
+const dotenv = require("dotenv").config()
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 const getAdmin = async (req, res) => {
@@ -109,70 +114,102 @@ const adminSignin = async (req, res) => {
 
 const addTrainer = async (req, res) => {
     try {
-        const { name, email, phone, age, gender, specialization, skills, address } = req.body;
+  
 
-        if (!name || !email || !phone || !age || !gender || !specialization || !address || !skills) {
+        const { name, phone, email, age, gender, specialization, skills, address } = req.body;
+
+        if (!name || !phone || !age || !gender || !specialization || !address || !skills) {
+            console.log("Validation failed: Missing required fields.");
             return res.status(400).json({
                 success: false,
                 message: "All fields are required."
             });
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^[0-9]{10}$/;
 
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid email format."
-            });
-        }
-
         if (!phoneRegex.test(phone)) {
+            console.log("Validation failed: Invalid phone number.");
             return res.status(400).json({
                 success: false,
                 message: "Phone number must be 10 digits."
             });
         }
 
-
+        
+        const randomPassword = crypto.randomBytes(8).toString("hex");
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    
         const existingTrainer = await Trainer.findOne({
-            where: { [Op.or]: [{ email }, { phone }] },
+            $or: [{ email: email }],
         });
 
         if (existingTrainer) {
+            console.log("Trainer already exists with provided email or phone.");
             return res.status(400).json({
                 success: false,
-                message: "A trainer with the provided email or phone number already exists.",
+                message: "A trainer with the provided phone number already exists.",
             });
         }
 
-
+       
         const counter = await Counter.findByIdAndUpdate(
-            { _id: 'trainerId' },
+            { _id: "trainerId" },
             { $inc: { sequence_value: 1 } },
             { new: true, upsert: true }
         );
 
         const trainerId = counter.sequence_value;
-
-
+    
         const trainer = await Trainer.create({
             trainerId,
             name,
-            email,
+            email: email,
             phone,
             age,
             gender,
             specialization,
             skills,
             address,
+            password: hashedPassword,
         });
+
+        
+        const emailContent = {
+            to: email, 
+            from: "dharanish816@gmail.com", 
+            subject: "Your Trainer Portal Credentials", 
+            text: `Hello ${name},\n\nYour account has been created successfully.\n\nHere are your credentials:\n\nEmail: ${email}\nPassword: ${randomPassword}\n\nPlease log in and change your password immediately.\n\nThank you!`,
+            html: `<p>Hello <b>${name}</b>,</p>
+                   <p>Your account has been created successfully.</p>
+                   <p>Here are your credentials:</p>
+                   <ul>
+                     <li><b>Email:</b> ${email}</li>
+                     <li><b>Password:</b> ${randomPassword}</li>
+                   </ul> 
+                   <p>Please log in and change your password immediately.</p>
+                   <p>Thank you!</p>`,
+        };
+
+        
+     
+        await sgMail.send(emailContent);
+        console.log("Email sent successfully.");
 
         return res.status(201).json({
             success: true,
-            message: "Trainer added successfully.",
-            trainer,
+            message: "Trainer added successfully. Credentials sent to the trainer's email.",
+            trainer: {
+                trainerId: trainer.trainerId,
+                name: trainer.name,
+                email: trainer.email,
+                phone: trainer.phone,
+                age: trainer.age,
+                gender: trainer.gender,
+                specialization: trainer.specialization,
+                skills: trainer.skills,
+                address: trainer.address,
+            },
         });
     } catch (error) {
         console.error("Error adding trainer:", error);
@@ -486,11 +523,11 @@ const addTask = async (req, res) => {
         });
     }
 
-    
+
     const tasksWithRequiredFields = newTaskList.map(task => ({
         date: task.date,
         taskName: task.taskName,
-        description: task.taskDescription,  
+        description: task.taskDescription,
         completed: task.completed || false,
     }));
 
@@ -501,7 +538,7 @@ const addTask = async (req, res) => {
     return res.json({
         success: true,
         message: 'Task added successfully',
-    }); 
+    });
 };
 
 

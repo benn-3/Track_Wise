@@ -19,6 +19,11 @@ const trainerSchema = new mongoose.Schema({
         trim: true,
         match: [/.+@.+\..+/, 'Please provide a valid email address.'],
     },
+    password: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     age: {
         type: Number,
         require: true

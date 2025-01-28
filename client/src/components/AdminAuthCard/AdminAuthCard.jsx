@@ -44,7 +44,7 @@ export default function AdminAuthCard() {
 
             if (response.success) {
                 console.log("Signup successful:", response);
-                showToast(response.message, 'success');
+                await showToast(response.message, 'success');
                 window.location.href = "/login"
             }
         } catch (error) {
@@ -78,7 +78,7 @@ export default function AdminAuthCard() {
 
     return (
         <div className="authpage-right-admin-container">
-            <div className="authpage-right-admin-header">
+            <div className={`authpage-right-admin-header ${!isSignup ? "right-header-visible" : ""}`}>
                 <div className="authpage-right-title">Admin Portal</div>
                 <div className="authpage-right-subtitle">
                     {isSignup

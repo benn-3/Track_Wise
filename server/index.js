@@ -16,9 +16,11 @@ connectToDB()
 
 const tokenRoutes = require("./routes/tokenRoutes")
 const adminRoutes = require("./routes/adminRoutes")
+const trainerRoutes = require("./routes/trainerRoutes")
 
 app.use("/api/admin",adminRoutes)
 app.use("/api/token",tokenRoutes)
+app.use("/api/trainer",trainerRoutes)
 
 
 app.listen(PORT, () => {

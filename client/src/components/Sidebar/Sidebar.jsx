@@ -24,8 +24,7 @@ export default function Sidebar() {
   const handleLogout = () => {
     localStorage.removeItem('Token');
     console.log("Logged Out");
-    dispatch(setAuthState(false));
-    navigate('/login');
+    window.location.href = "/login"
   };
 
   return (

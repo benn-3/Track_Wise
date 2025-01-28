@@ -3,7 +3,7 @@
   flex: 1;
   flex-direction: column;
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: hidden;
   background-color: #f9fafb;
   padding: 1.5rem;
 }
@@ -91,6 +91,12 @@
   gap: 1em;
   align-items: stretch;
   justify-content: center;
+  overflow-y: scroll;
+}
+
+.programs-content::-webkit-scrollbar{
+  width: 0px;
+
 }
 
 .program-card {

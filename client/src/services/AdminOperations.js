@@ -2,7 +2,7 @@ import axios from "axios";
 import { setAdmin } from "../redux/actions/authActions";
 import { setPrograms, setTrainers } from "../redux/actions/adminActions";
 
-const API_URL = 'http://192.168.56.1:7000/api/admin';
+const API_URL = 'http://192.168.1.5:7000/api/admin';
 
 export const getAdmin = async (token, adminId, dispatch) => {
     if (!adminId) {
@@ -132,10 +132,11 @@ export const getAllPrograms = async (token, dispatch) => {
     try {
         const response = await axios.get(`${API_URL}/get-all-programs`);
         if (response.status === 200) {
-            dispatch(setPrograms(response.data.programs))
+            let programs = response.data.programs;
+            dispatch(setPrograms(programs))
         }
         else {
-            dispatch(setPrograms([]))
+            dispatch(setPrograms([null]))
         }
     }
     catch (err) {

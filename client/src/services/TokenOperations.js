@@ -1,6 +1,13 @@
 import axios from "axios";
+import store from "../redux/store"
 
-const API_URL = "http://192.168.1.5:7000/api/token";
+const getIP = () => {
+  const states = store.getState()
+  const ip = states.auth.IP
+  return ip
+}
+
+const API_URL = `${getIP()}:7000/api/token`;
 
 export const checkTokenIsValid = async (token) => {
   try {

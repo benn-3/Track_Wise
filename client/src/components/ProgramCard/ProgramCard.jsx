@@ -1,7 +1,4 @@
-
-
-
-
+/* eslint-disable react/prop-types */
 
 import { AlertTriangle, Calendar, CheckCircle, Clock, Save, Trash, X } from "lucide-react";
 import "./programCard.css";
@@ -92,6 +89,9 @@ export default function ProgramCard({ program, onClose }) {
 
     };
 
+    const sortedSchedule = [...schedule].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+
     const handleSaveAddTask = () => {
         if (newTask.date && newTask.taskName && newTask.taskDescription) {
             setNewTaskList((prevList) => {
@@ -176,63 +176,64 @@ export default function ProgramCard({ program, onClose }) {
                                 Schedule List - {schedule.length} Tasks
                             </div>
 
-                            {schedule.length > 0 ? (
-                                <div className="schedule-container">
-                                    {schedule
-                                        .sort((a, b) => new Date(a.date) - new Date(b.date))
-                                        .map((session, index) => {
-                                            const sessionDate = new Date(session.date).toISOString().split("T")[0];
-                                            const today = new Date().toISOString().split("T")[0];
-                                            let icon;
-                                            let iconClass = "";
+                            <div className="schedule-container">
+                                {schedule?.length > 0 ? (
+                                    <div className="schedule-container">
+                                        {sortedSchedule
+                                            .map((session, index) => {
+                                                const sessionDate = new Date(session.date).toISOString().split("T")[0];
+                                                const today = new Date().toISOString().split("T")[0];
+                                                let icon;
+                                                let iconClass = "";
 
-                                            if (session.completed) {
-                                                icon = <CheckCircle color="#19A44C" size={"1.5rem"} />;
-                                                iconClass = "completed-task";
-                                            } else if (sessionDate === today) {
-                                                icon = <Clock className="animated-clock" color="#2563EB" size={"1.5rem"} />;
-                                                iconClass = "today-task";
-                                            } else if (sessionDate < today) {
-                                                icon = <AlertTriangle color="#f44336" size={"1.5rem"} />;
-                                                iconClass = "past-task";
-                                            } else if (sessionDate > today) {
-                                                icon = <Calendar color="orange" size={"1.5rem"} />;
-                                                iconClass = "future-task";
-                                            }
+                                                if (session.completed) {
+                                                    icon = <CheckCircle color="#19A44C" size={"1.5rem"} />;
+                                                    iconClass = "completed-task";
+                                                } else if (sessionDate === today) {
+                                                    icon = <Clock className="animated-clock" color="#2563EB" size={"1.5rem"} />;
+                                                    iconClass = "today-task";
+                                                } else if (sessionDate < today) {
+                                                    icon = <AlertTriangle color="#f44336" size={"1.5rem"} />;
+                                                    iconClass = "past-task";
+                                                } else if (sessionDate > today) {
+                                                    icon = <Calendar color="orange" size={"1.5rem"} />;
+                                                    iconClass = "future-task";
+                                                }
 
-                                            return (
-                                                <div key={index} className="schedule-item" >
-                                                    <div className={`program-card-task-status-icon ${iconClass}`}>
-                                                        {icon}
-                                                    </div>
-                                                    <div className="schedule-details">
-                                                        <div className="schedule-task">
-                                                            {session.taskName} -{" "}
-                                                            <span className="schedule-description">
-                                                                {session.description}
-                                                            </span>
+                                                return (
+                                                    <div key={index} className="schedule-item">
+                                                        <div className={`program-card-task-status-icon ${iconClass}`}>
+                                                            {icon}
                                                         </div>
-                                                        <div className="schedule-date">
-                                                            {new Date(session.date).toLocaleDateString()}
+                                                        <div className="schedule-details">
+                                                            <div className="schedule-task">
+                                                                {session.taskName} -{" "}
+                                                                <span className="schedule-description">
+                                                                    {session.description}
+                                                                </span>
+                                                            </div>
+                                                            <div className="schedule-date">
+                                                                {new Date(session.date).toLocaleDateString()}
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            className="schedule-item-delete"
+                                                            onClick={() => handleRemoveTask(session._id)}
+                                                        >
+                                                            <Trash color="#BB1C48" size={"1.2rem"} />
                                                         </div>
                                                     </div>
+                                                );
+                                            })}
+                                    </div>
+                                ) : (
+                                    <div className="no-schedule">
+                                        No schedule available for this program.
+                                    </div>
+                                )}
+                            </div>
 
-                                                    <div
-                                                        className="schedule-item-delete"
-                                                        onClick={() => handleRemoveTask(session._id)}
-                                                    >
-                                                        <Trash color="#BB1C48" size={"1.2rem"} />
-                                                    </div>
-
-                                                </div>
-                                            );
-                                        })}
-                                </div>
-                            ) : (
-                                <div className="no-schedule">
-                                    No schedule available for this program.
-                                </div>
-                            )}
                         </div>
                         <div className="program-modal-bottom-right">
                             {isAdding ? (

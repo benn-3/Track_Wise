@@ -72,16 +72,6 @@ export default function Sidebar() {
               />
               Programs
             </div>
-            <div
-              className={`sidebar-link ${isActive('/feedbacks') ? 'sidebar-link-active' : ''}`}
-              onClick={() => handleNavigation('/feedbacks')}
-            >
-              <MessageSquare
-                color={isActive('/feedbacks') ? 'white' : '#9CA3AF'}
-                size="1.5em"
-              />
-              Feedbacks
-            </div>
           </div>
         )}
       </div>

@@ -14,5 +14,8 @@ router.post("/add-program", adminController.addProgram)
 router.get("/get-all-programs", adminController.getAllPrograms)
 router.delete("/delete-task", adminController.deleteTask)
 router.post("/add-task", adminController.addTask)
+router.post("/edit-program",adminController.editProgram)
+router.delete("/delete-program",adminController.deleteProgram)
+
 
 module.exports = router

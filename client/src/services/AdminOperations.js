@@ -1,8 +1,15 @@
 import axios from "axios";
 import { setAdmin } from "../redux/actions/authActions";
 import { setPrograms, setTrainers } from "../redux/actions/adminActions";
+import store from "../redux/store"
 
-const API_URL = 'http://192.168.1.5:7000/api/admin';
+const getIP = () => {
+    const states = store.getState()
+    const ip = states.auth.IP
+    return ip
+}
+
+const API_URL = `${getIP()}:7000/api/admin`;
 
 export const getAdmin = async (token, adminId, dispatch) => {
     if (!adminId) {
@@ -133,16 +140,14 @@ export const getAllPrograms = async (token, dispatch) => {
         const response = await axios.get(`${API_URL}/get-all-programs`);
         if (response.status === 200) {
             let programs = response.data.programs;
-            dispatch(setPrograms(programs))
+            dispatch(setPrograms(programs));
+        } else {
+            dispatch(setPrograms([null]));
         }
-        else {
-            dispatch(setPrograms([null]))
-        }
-    }
-    catch (err) {
+    } catch (err) {
         console.error('Error getting all programs:', err.message);
     }
-}
+};
 
 export const deleteTask = async (token, programId, taskId, dispatch) => {
     try {
@@ -177,5 +182,44 @@ export const addTask = async (token, programId, newTaskList, dispatch) => {
     }
     catch (err) {
         console.error('Error adding task:', err.message);
+    }
+}
+
+export const handleProgramEdit = async (token, programId, changes, dispatch) => {
+    try {
+        const response = await axios.post(`${API_URL}/edit-program`, {
+            programId,
+            changes
+        })
+        if (response.status === 200) {
+            await getAllPrograms(token, dispatch)
+            await getAllTrainers(token, dispatch)
+            return response.data
+        }
+        else {
+            return response.data
+        }
+
+    } catch (err) {
+        console.error('Error editing program:', err.message);
+    }
+}
+
+export const handleDelete = async (token, programId, dispatch) => {
+    console.log(programId)
+    try {
+        const response = await axios.delete(`${API_URL}/delete-program`, {
+            data: { programId }
+        })
+        if (response.status === 200) {
+            await getAllPrograms(token, dispatch)
+            return response.data
+        }
+        else {
+            return response.data
+        }
+    }
+    catch (err) {
+        console.error('Error deleting program:', err.message);
     }
 }

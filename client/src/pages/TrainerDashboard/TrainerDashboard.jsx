@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import "./trainerdashboard.css";
 import { useDispatch, useSelector } from "react-redux";
-import { handleGetTrainerData, handleMarkAsComplete } from "../../services/TrainerOperations";
-import { Calendar, Clock, Save, AlertCircle, CheckCheck, Check, X, User } from "lucide-react";
+import { handleGetTrainerData, handleMarkAsComplete, markAttendance } from "../../services/TrainerOperations";
+import { Calendar, Clock, Save, AlertCircle, CheckCheck, Check, X, User, LogOut, BookOpenCheck } from "lucide-react";
 import { showToast } from "../../hooks/useToast";
+import CustomCalendar from "../../components/Calendar/CustomCalendar";
 
 export default function TrainerDashboard() {
     const dispatch = useDispatch();
@@ -16,12 +17,12 @@ export default function TrainerDashboard() {
     const lastTaskRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [isTrainerProfile, setIsTrainerProfile] = useState(false);
-
-    useEffect(() => {
-        if (lastTaskRef.current) {
-            lastTaskRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [assignedPrograms, taskFilter]);
+    const [attendanceMarkedToday, setAttendanceMarkedToday] = useState(false);
+    const [isShowCalendar, setIsShowCalendar] = useState(false);
+    const [isResetPassword, setIsResetPassword] = useState(false);
+    const [email, setEmail] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
 
     useEffect(() => {
@@ -38,6 +39,25 @@ export default function TrainerDashboard() {
             setCurrentProgram(assignedPrograms.programsAssigned[0]);
         }
     }, [assignedPrograms]);
+
+    useEffect(() => {
+        if (lastTaskRef.current) {
+            lastTaskRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [assignedPrograms, taskFilter]);
+
+    useEffect(() => {
+        if (currentTrainer && currentTrainer.attendance) {
+            const today = new Date().setHours(0, 0, 0, 0);
+            const lastAttendance = currentTrainer.attendance.slice(-1)[0];
+
+            if (lastAttendance && new Date(lastAttendance.date).setHours(0, 0, 0, 0) === today) {
+                setAttendanceMarkedToday(true);
+            } else {
+                setAttendanceMarkedToday(false);
+            }
+        }
+    }, [currentTrainer]);
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -64,6 +84,19 @@ export default function TrainerDashboard() {
         }
     };
 
+    const handleResetPassword = (e) => {
+        e.preventDefault();
+
+
+        if (newPassword !== confirmPassword) {
+            showToast("Passwords do not match!", "error");
+        } else {
+            const response = await resetPassword(token, email, password, dispatch)
+            showToast("Password reset successfully!", "succes");
+            setIsResetPassword(false);
+        }
+    };
+
     const isTaskTodayAndNotCompleted = (task) => {
         const taskDate = new Date(task.date).setHours(0, 0, 0, 0);
         const today = new Date().setHours(0, 0, 0, 0);
@@ -86,9 +119,10 @@ export default function TrainerDashboard() {
     };
 
     const handleTaskCompletion = async (task) => {
-        console.log(task);
+
         const response = await handleMarkAsComplete(token, currentProgram._id, currentTrainer._id, task._id, dispatch);
         if (response.success) {
+            setAttendanceMarkedToday(true)
             showToast("Marked task completed", "success");
         } else {
             showToast("Failed to mark task completed", "error");
@@ -109,20 +143,61 @@ export default function TrainerDashboard() {
         setCurrentProgram(program);
     };
 
-
+    useEffect(() => {
+        console.log("Trainer", currentTrainer)
+    }, [currentTrainer])
 
     const filterTasks = () => {
+        let filteredTasks = [];
+
         if (taskFilter === "completed") {
-            return tasks.filter(task => task.completed);
+            filteredTasks = tasks.filter(task => task.completed);
         } else if (taskFilter === "missed") {
-            return tasks.filter(task => !task.completed && new Date(task.date).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0));
+            filteredTasks = tasks.filter(task =>
+                !task.completed && new Date(task.date).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)
+            );
         } else {
-            return tasks;
+            filteredTasks = tasks;
+        }
+
+
+        const sortedTasks = [...filteredTasks].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        return sortedTasks;
+    };
+
+
+    const handleAttendance = async (status) => {
+        const confirmation = await confirm("Are you sure you want to mark attendance?", "Confirm Attendance");
+
+        if (confirmation) {
+            const attendanceData = {
+                status: status,
+                date: new Date()
+            };
+
+            try {
+                const response = await markAttendance(token, currentTrainer._id, attendanceData, dispatch);
+
+                if (response.success) {
+                    showToast("Attendance updated", "success");
+                } else {
+                    showToast("Failed to update attendance", "error");
+                }
+            } catch (error) {
+                showToast("An error occurred while updating attendance", "error");
+                console.error(error);
+            }
         }
     };
 
+
+
     return (
         <div className="trainer-dashboard-container">
+            {
+                isTrainerProfile && <div className="overlay"></div>
+            }
             <div className="trainer-dashboard-container-left">
                 <div className="trainer-dashboard-left-top">
                     <div className="top-header">
@@ -151,7 +226,7 @@ export default function TrainerDashboard() {
                                 </span>
                             </span>
                             <span className="trainer-dashboard-day">
-                                Day {completedTasks + 1} of {tasks.length}
+                                Day {completedTasks ? completedTasks + 1 : 0} of {tasks.length}
                             </span>
                         </div>
                         <div
@@ -160,15 +235,19 @@ export default function TrainerDashboard() {
                                 justifyContent: "center",
                                 alignItems: "center",
                                 padding: "0.5rem",
-                                backgroundColor: "#F6F4F0",
                                 borderRadius: "20000px",
                                 width: "3rem",
                                 height: "3rem",
-                                border: "1px solid lightgrey",
-                                cursor: "pointer",
+
+
                             }}
                         >
-                            <Calendar size={"1.5rem"} color="green" />
+                            {/* <Calendar onClick={() => {
+                                setIsShowCalendar(true)
+                            }} size={"1.5rem"} color="green" /> */}
+                            <BookOpenCheck style={{
+                                marginBottom: "1.5rem"
+                            }} />
                         </div>
                     </div>
                     <div className="top-bottom">
@@ -255,6 +334,77 @@ export default function TrainerDashboard() {
             </div>
             <div className="trainer-dashboard-container-right">
 
+
+                <div className="trainer-dashboard-right-bottom">
+                    <div style={{
+                        display: 'flex',
+                        width: "100%",
+                        justifyContent: "space-between",
+                        alignItems: "center"
+                    }}>
+                        <div style={{
+                            fontSize: "1.1rem",
+                            fontWeight: "600",
+                            color: "#333"
+                        }}>Hello , {currentTrainer?.name}</div>
+                        <span style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "1rem",
+
+                        }}>
+                            <LogOut style={{
+                                cursor: "pointer"
+                            }} onClick={() => {
+                                localStorage.removeItem("Token")
+                                window.location.href = "/login"
+                            }} />
+                            |
+                            <User onClick={() => setIsTrainerProfile(true)} style={{
+                                cursor: "pointer",
+                            }} />
+                        </span>
+
+                    </div>
+
+                    {attendanceMarkedToday ? (
+                        <>
+                            <span style={{
+                                fontSize: "1rem",
+                                fontWeight: "500"
+                            }}>Attendance Actions :</span>
+                            <div style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                width: "100%",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: "1rem"
+                            }}>
+                                <div className="trainer-present-button disabled" onClick={() => handleAttendance("Present")}> <Check /> Mark Present</div>
+                                <div className="trainer-absent-button disabled" onClick={() => handleAttendance("Absent")}> <X /> Mark Absent</div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <span style={{
+                                fontSize: "1rem",
+                                fontWeight: "500"
+                            }}>Attendance Actions :</span>
+                            <div style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                width: "100%",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: "1rem"
+                            }}>
+                                <div className="trainer-present-button marked" onClick={() => handleAttendance("Present")}> <Check /> Mark Present</div>
+                                <div className="trainer-absent-button marked" onClick={() => handleAttendance("Absent")}> <X /> Mark Absent</div>
+                            </div>
+                        </>
+                    )}
+                </div>
                 <div className="trainer-dashboard-right-top">
                     <input
                         placeholder="Search assigned programs..."
@@ -285,45 +435,78 @@ export default function TrainerDashboard() {
 
                     </div>
                 </div>
-
-
-
-                <div className="trainer-dashboard-right-bottom">
-                    <div style={{
-                        display: 'flex',
-                        width: "100%",
-                        justifyContent: "space-between",
-                        alignItems: "center"
-                    }}>
-                        <div style={{
-                            fontSize: "1.1rem",
-                            fontWeight: "600",
-                            color: "#333"
-                        }}>Hello , {currentTrainer?.name}</div>
-                        <User onClick={() => setIsTrainerProfile(true)} style={{
-                            cursor: "pointer",
-                        }} />
-                    </div>
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        width: "100%",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "1rem"
-                    }}>
-                        <div className="trainer-present-button marked"> <Check /> Mark Present</div>
-                        <div className="trainer-absent-button marked"> <X /> Mark Absent</div>
-                    </div>
-                </div>
             </div>
+
+            {/* {
+                isShowCalendar && <CustomCalendar program={currentProgram} onClose={() => {
+                    setIsShowCalendar(false)
+                }} />
+            } */}
+
+
             {
                 isTrainerProfile && (
-                    <div className="trainer-profile">
+                    isResetPassword ? (
+                        <div className="reset-password-container">
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <h2 style={{ margin: "0" }}>Reset Password</h2>
+                                <X style={{ cursor: "pointer" }} onClick={() => setIsResetPassword(false)} />
+                            </div>
+                            <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", flex: "1", justifyContent: "space-evenly" }}>
+                                <div className="reset-password-input">
+                                    <label htmlFor="email">Email Address:</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        placeholder="Enter your email"
+                                        required
+                                        value={currentTrainer?.email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div className="reset-password-input">
+                                    <label htmlFor="new-password">New Password:</label>
+                                    <input
+                                        type="password"
+                                        id="new-password"
+                                        name="new-password"
+                                        placeholder="Enter new password"
+                                        required
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                    />
+                                </div>
+                                <div className="reset-password-input">
+                                    <label htmlFor="confirm-password">Confirm New Password:</label>
+                                    <input
+                                        type="password"
+                                        id="confirm-password"
+                                        name="confirm-password"
+                                        placeholder="Confirm new password"
+                                        required
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <button style={{
+                                        backgroundColor: "#0FA87A",
+                                        border: "none",
+                                        outline: 'none',
+                                        padding: "0.5rem 0.7rem",
+                                        color: "white",
+                                        borderRadius: "8px",
+                                        fontWeight: "500"
+                                    }} type="submit">Reset Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    ) : <div className="trainer-profile">
                         <h2 className="trainer-profile-top">
                             Trainer&apos;s Details
                             <X style={{
-                                cursor:"pointer"
+                                cursor: "pointer"
                             }} size={"1.7rem"} onClick={() => setIsTrainerProfile((prev) => !prev)} />
                         </h2>
                         <div className="trainer-profile-bottom">
@@ -355,8 +538,22 @@ export default function TrainerDashboard() {
                                 <strong>Programs Assigned:</strong> {currentTrainer?.programsAssigned?.length || 0}
                             </div>
                         </div>
+                        <div style={{
+                            alignSelf: "flex-end",
+                            backgroundColor: "#8B5DFF",
+                            color: "#fff",
+                            padding: "0.5rem 0.7rem",
+                            borderRadius: "10px",
+                            fontWeight: "600",
+                            cursor: "pointer"
+                        }} onClick={() => [
+                            setIsResetPassword(true)
+                        ]}>
+                            Reset Password
+                        </div>
                     </div>
                 )
+
             }
         </div>
 

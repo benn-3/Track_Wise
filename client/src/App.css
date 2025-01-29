@@ -3,7 +3,6 @@
   flex-direction: row;
   flex: 1;
   height: 100vh;
- 
 }
 
 .main-container {
@@ -11,5 +10,5 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
- flex: 1;
+  flex: 1;
 }

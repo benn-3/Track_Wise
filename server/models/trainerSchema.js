@@ -60,6 +60,7 @@ const trainerSchema = new mongoose.Schema({
             date: {
                 type: Date,
                 required: true,
+                index: true,
             },
             status: {
                 type: String,

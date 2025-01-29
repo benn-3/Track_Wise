@@ -1,10 +1,20 @@
 import axios from "axios";
 import { setTrainerData } from "../redux/actions/trainerActions";
 import { setTrainer } from "../redux/actions/authActions";
+import store from "../redux/store"
 
-const API_URL = 'http://192.168.1.5:7000/api/trainer';
+const getIP = () => {
+    const states = store.getState()
+    const ip = states.auth.IP
+    console.log(ip)
+    return ip
+}
+
+const API_URL = `${getIP()}:7000/api/trainer`;
 
 export const getTrainer = (token, trainerId, dispatch) => {
+
+    console.log("getting trainer")
 
     const fetchTrainerData = async () => {
         try {
@@ -44,11 +54,13 @@ export const handleTrainerLogin = async (token, formData) => {
 }
 
 export const handleGetTrainerData = async (token, trainerId, dispatch) => {
+    console.log("getting trainer data")
     try {
         const response = await axios.get(`${API_URL}/trainer-data?trainerId=${trainerId}`)
 
         if (response.data.success) {
-            dispatch(setTrainerData(response.data.trainer))
+            let trainerData = response.data.trainer;
+            dispatch(setTrainerData(trainerData))
 
         }
         else {
@@ -69,6 +81,26 @@ export const handleMarkAsComplete = async (token, programId, trainerId, taskId, 
         })
         await handleGetTrainerData(token, trainerId, dispatch)
         return response.data
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+export const markAttendance = async (token, trainerId, attendanceData, dispatch) => {
+    try {
+        const response = await axios.post(`${API_URL}/mark-attendance`, {
+            trainerId,
+            attendanceData
+        })
+        if (response.status == 200) {
+            await handleGetTrainerData(token, trainerId, dispatch)
+             getTrainer(token,trainerId,dispatch)
+            return response.data
+        }
+        else {
+            return response.data
+        }
     }
     catch (err) {
         console.log(err)

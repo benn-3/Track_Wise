@@ -5,7 +5,8 @@ const initialState = {
     token: null,
     isAuthenticated: false,
     role: null,
-    id: null
+    id: null,
+    IP:"http://192.168.1.5"
 }
 
 export default function authReducer(state = initialState, action) {

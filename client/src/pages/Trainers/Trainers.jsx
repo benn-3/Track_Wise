@@ -47,12 +47,16 @@ export default function Trainers() {
 
     useEffect(() => {
         if (searchQuery) {
-            const filtered = trainers.filter((trainer) =>
-                trainer.trainerId.toString().includes(searchQuery) ||
-                trainer.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                trainer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                trainer.specialization?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            const filtered = trainers?.filter((trainer) => {
+                const specialization = trainer?.specialization;
+                return (
+                    trainer.trainerId.toString().includes(searchQuery) ||
+                    trainer.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    trainer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (typeof specialization === "string" &&
+                        specialization.toLowerCase().includes(searchQuery.toLowerCase()))
+                );
+            });
             setFilteredTrainers(filtered);
         } else {
             setFilteredTrainers(trainers);

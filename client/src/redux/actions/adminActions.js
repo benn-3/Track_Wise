@@ -8,7 +8,6 @@ export const setTrainers = (trainers) => {
 }
 
 export const setPrograms = (programs) => {
-    console.log("action")
     return {
         type: GET_PROGRAMS,
         payload: programs

@@ -286,3 +286,9 @@
   border-radius: 20px;
   color: green;
 }
+
+.attendance-agenda{
+  display: flex;
+  align-self: center;
+  gap: 1.5rem;
+}

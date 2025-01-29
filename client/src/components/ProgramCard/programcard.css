@@ -7,12 +7,12 @@
   flex-direction: column;
   align-items: center;
   background-color: white;
-  width: 70rem;
+  width: 80%;
   padding: 1.5rem;
   z-index: 1000;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  height: 40rem;
+  height: 90%;
 }
 
 .program-modal-header {
@@ -179,6 +179,10 @@
   flex: 1;
 }
 
+.schedule-container::-webkit-scrollbar{
+  width: 0px;
+}
+
 .schedule-item {
   border-radius: 8px;
   height: 5rem;
@@ -218,13 +222,13 @@
 }
 
 .trainer-detail-item .detail-label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 550;
   margin-right: 0.1rem;
 }
 
 .trainer-detail-item span {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -366,6 +370,7 @@
   width: 30%;
   color: white;
   border-radius: 10px;
+  cursor: pointer;
 }
 
 .schedule-container {

@@ -33,7 +33,10 @@ export default function Dashboard() {
       }
     };
 
+    
+
     fetchData();
+  
   }, [adminId, token, dispatch]);
 
   const activeTrainers = trainers ? trainers.filter((trainer) =>
@@ -104,7 +107,7 @@ export default function Dashboard() {
   ];
 
 
-  const COLORS = ['#4F46E5', '#FCD34D', '#EF4444'];
+  const COLORS = ['#4F46E5', '#EF4444', '#FCD34D'];
 
   return (
     <div className='dashboard-container'>
@@ -185,15 +188,15 @@ export default function Dashboard() {
                 <Tooltip
                   content={({ payload }) => {
                     if (!payload || payload.length === 0) return null;
-                    const { name, trainerName, totalTasks, completedTasks, completionRate,programStatus } = payload[0].payload;
+                    const { name, trainerName, totalTasks, completedTasks, completionRate, programStatus } = payload[0].payload;
                     return (
                       <div className="custom-tooltip">
                         <p><strong style={{ marginRight: "0.3rem" }}>Program:</strong> {name}</p>
                         <p><strong style={{ marginRight: "0.3rem" }}>Trainer:</strong> {trainerName}</p>
                         <p>
-                  <strong style={{ marginRight: "0.3rem" }}>Status:</strong>{" "}
-                  {programStatus}
-                </p>
+                          <strong style={{ marginRight: "0.3rem" }}>Status:</strong>{" "}
+                          {programStatus}
+                        </p>
                         <p><strong style={{ marginRight: "0.3rem" }}>Total Tasks:</strong> {totalTasks}</p>
                         <p><strong style={{ marginRight: "0.3rem" }}>Completed Tasks:</strong> {completedTasks}</p>
                         <p style={{ color: "#4F46E5" }}><strong style={{ marginRight: "0.3rem" }}>Completion Rate:</strong> {completionRate.toFixed(2)}%</p>
@@ -208,7 +211,7 @@ export default function Dashboard() {
           </div>
           <div className='dashboard-piechart-container'>
             <div className='dashboard-piechart-title'>Trainer Attendance</div>
-            <ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 {attendanceData && attendanceData.some(entry => entry.value > 0) ? (
                   <>
@@ -232,6 +235,25 @@ export default function Dashboard() {
                 )}
               </PieChart>
             </ResponsiveContainer>
+
+    
+            <div className='attendance-agenda'>
+              {attendanceData.map((entry, index) => (
+                <div key={index} className='agenda-item'>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: '1rem',
+                      height: '1rem',
+                      backgroundColor: COLORS[index],
+                      marginRight: '10px',
+                      borderRadius:"1000px"
+                    }}
+                  ></span>
+                  {entry.name}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

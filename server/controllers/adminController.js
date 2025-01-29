@@ -114,7 +114,7 @@ const adminSignin = async (req, res) => {
 
 const addTrainer = async (req, res) => {
     try {
-  
+
 
         const { name, phone, email, age, gender, specialization, skills, address } = req.body;
 
@@ -136,10 +136,10 @@ const addTrainer = async (req, res) => {
             });
         }
 
-        
+
         const randomPassword = crypto.randomBytes(8).toString("hex");
         const hashedPassword = await bcrypt.hash(randomPassword, 10);
-    
+
         const existingTrainer = await Trainer.findOne({
             $or: [{ email: email }],
         });
@@ -152,7 +152,7 @@ const addTrainer = async (req, res) => {
             });
         }
 
-       
+
         const counter = await Counter.findByIdAndUpdate(
             { _id: "trainerId" },
             { $inc: { sequence_value: 1 } },
@@ -160,7 +160,7 @@ const addTrainer = async (req, res) => {
         );
 
         const trainerId = counter.sequence_value;
-    
+
         const trainer = await Trainer.create({
             trainerId,
             name,
@@ -174,11 +174,11 @@ const addTrainer = async (req, res) => {
             password: hashedPassword,
         });
 
-        
+
         const emailContent = {
-            to: email, 
-            from: "dharanish816@gmail.com", 
-            subject: "Your Trainer Portal Credentials", 
+            to: email,
+            from: "dharanish816@gmail.com",
+            subject: "Your Trainer Portal Credentials",
             text: `Hello ${name},\n\nYour account has been created successfully.\n\nHere are your credentials:\n\nEmail: ${email}\nPassword: ${randomPassword}\n\nPlease log in and change your password immediately.\n\nThank you!`,
             html: `<p>Hello <b>${name}</b>,</p>
                    <p>Your account has been created successfully.</p>
@@ -191,8 +191,8 @@ const addTrainer = async (req, res) => {
                    <p>Thank you!</p>`,
         };
 
-        
-     
+
+
         await sgMail.send(emailContent);
         console.log("Email sent successfully.");
 
@@ -417,12 +417,13 @@ const addProgram = async (req, res) => {
 
 const getAllPrograms = async (req, res) => {
     try {
-        const programs = await Program.find().populate("trainerAssigned").exec();
+        const programs = await Program.find().populate("trainerAssigned").lean().exec();
+        const clonedPrograms = JSON.parse(JSON.stringify(programs));
 
         res.status(200).json({
             success: true,
             message: 'Programs fetched successfully',
-            programs,
+            programs: clonedPrograms,
         });
     } catch (error) {
         console.error(error);
@@ -541,6 +542,131 @@ const addTask = async (req, res) => {
     });
 };
 
+const editProgram = async (req, res) => {
+    try {
+        const { programId, changes } = req.body;
+
+
+        if (!programId || !changes) {
+            return res.status(400).json({ success: false, message: "Program ID and updated data are required" });
+        }
+
+        const program = await Program.findById(programId);
+
+        if (!program) {
+            return res.status(404).json({ success: false, message: "Program not found" });
+        }
+
+        
+        if (changes.trainerAssigned && changes.trainerAssigned !== program.trainerAssigned.toString()) {
+          
+
+            
+            const oldTrainerId = program.trainerAssigned;
+            if (oldTrainerId) {
+             
+                const oldTrainer = await Trainer.findById(oldTrainerId);
+
+                if (oldTrainer) {
+                  
+
+                    
+                    if (oldTrainer.programsAssigned && oldTrainer.programsAssigned.length > 0) {
+                      
+                        await Trainer.updateOne(
+                            { _id: oldTrainerId },
+                            { $pull: { programsAssigned: programId } }
+                        );
+                        console.log("Old Trainer Details Updated Successfully");
+                    } else {
+                        console.log("Old Trainer's Assigned Programs is empty; no removal necessary");
+                    }
+                } else {
+                    console.log("Old Trainer not found; skipping removal");
+                }
+            }
+
+            
+      
+            const newTrainerId = changes.trainerAssigned;
+            const newTrainer = await Trainer.findById(newTrainerId);
+            if (!newTrainer) {
+                return res.status(404).json({ success: false, message: "New trainer not found" });
+            }
+
+            await Trainer.updateOne(
+                { _id: newTrainerId },
+                { $push: { programsAssigned: programId } }
+            );
+            console.log("New Trainer Updated Successfully");
+            program.trainerAssigned = newTrainerId;
+        } else {
+            console.log("No changes in trainer assignment detected");
+        }
+
+        
+        const updateData = { ...changes };
+        delete updateData.trainerAssigned;
+
+        if (Object.keys(updateData).length > 0) {
+      
+            await program.updateOne({ $set: updateData });
+            console.log("Program Updated Successfully:", programId);
+        } else {
+            console.log("No additional fields to update");
+        }
+
+        await program.save();
+        res.status(200).json({ success: true, message: "Program updated successfully", program });
+    } catch (err) {
+        console.error("Error updating program:", err.message);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+
+
+const deleteProgram = async (req, res) => {
+    try {
+        const { programId } = req.body;
+
+        console.log(req.body);
+
+        if (!programId) {
+            return res.status(400).json({ success: false, message: "Program ID is required" });
+        }
+
+
+        const program = await Program.findByIdAndDelete(programId).lean();
+
+        if (!program) {
+            return res.status(404).json({ success: false, message: "Program not found" });
+        }
+
+
+        const trainer = await Trainer.findOne({ ean: program.trainerAssigned }).lean();
+
+        if (trainer) {
+
+            trainer.programsAssigned = trainer.programsAssigned.filter(
+                assignedProgram => assignedProgram.toString() !== programId
+            );
+
+            await Trainer.findOneAndUpdate(
+                { ean: program.trainerAssigned },
+                { programsAssigned: trainer.programsAssigned }
+            );
+        }
+
+        res.status(200).json({ success: true, message: "Program deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting program:", err.message);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
 
 
 module.exports = {
@@ -555,5 +681,7 @@ module.exports = {
     addProgram,
     getAllPrograms,
     deleteTask,
-    addTask
+    addTask,
+    editProgram,
+    deleteProgram
 }

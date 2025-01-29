@@ -12,7 +12,6 @@ import { checkTokenIsValid } from "./services/TokenOperations";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthState } from "./redux/actions/authActions";
 import Loader from "./components/Loader/Loader";
-import Feedbacks from "./pages/Feedback/Feedbacks";
 import { getAdmin } from "./services/AdminOperations";
 import TrainerDashboard from "./pages/TrainerDashboard/TrainerDashboard";
 import { getTrainer } from "./services/TrainerOperations";
@@ -87,8 +86,7 @@ function App() {
             <Routes>
               <Route path="/admin" element={<Dashboard />} />
               <Route path="/trainers" element={<Trainers />} />
-              <Route path="/programs" element={<Programs />} />
-              <Route path="/feedbacks" element={<Feedbacks />} />
+              <Route path="/programs" element={<Programs />} />       
               <Route path="*" element={<Navigate to={"/admin"} />} />
               <Route path="*" element={<Navigate to="/admin" />} />
             </Routes>

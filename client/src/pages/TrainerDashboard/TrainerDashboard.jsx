@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import "./trainerdashboard.css";
 import { useDispatch, useSelector } from "react-redux";
-import { handleGetTrainerData, handleMarkAsComplete, markAttendance } from "../../services/TrainerOperations";
+import { handleGetTrainerData, handleMarkAsComplete, markAttendance, resetPasswordHandle } from "../../services/TrainerOperations";
 import { Calendar, Clock, Save, AlertCircle, CheckCheck, Check, X, User, LogOut, BookOpenCheck } from "lucide-react";
 import { showToast } from "../../hooks/useToast";
 import CustomCalendar from "../../components/Calendar/CustomCalendar";
@@ -20,9 +20,9 @@ export default function TrainerDashboard() {
     const [attendanceMarkedToday, setAttendanceMarkedToday] = useState(false);
     const [isShowCalendar, setIsShowCalendar] = useState(false);
     const [isResetPassword, setIsResetPassword] = useState(false);
-    const [email, setEmail] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [oldPassword, setOldPassword] = useState("");
 
 
     useEffect(() => {
@@ -84,16 +84,30 @@ export default function TrainerDashboard() {
         }
     };
 
-    const handleResetPassword = (e) => {
+    const handleResetPassword = async (e) => {
         e.preventDefault();
 
+        if (newPassword?.length <= 8) {
+            alert("Password must be at least 8 characters long");
+        }
 
         if (newPassword !== confirmPassword) {
             showToast("Passwords do not match!", "error");
         } else {
-            const response = await resetPassword(token, email, password, dispatch)
-            showToast("Password reset successfully!", "succes");
-            setIsResetPassword(false);
+            const email = currentTrainer?.email
+            const id = currentTrainer?._id
+            const response = await resetPasswordHandle(token, email, oldPassword, newPassword, id, dispatch)
+            if (response.success) {
+                showToast("Password reset successfully!", "success");
+                setNewPassword("")
+                setConfirmPassword("");
+                setOldPassword("");
+                setIsResetPassword(false);
+            }
+            else {
+                showToast("Error resetting password!", "error");
+            }
+
         }
     };
 
@@ -454,15 +468,15 @@ export default function TrainerDashboard() {
                             </div>
                             <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", flex: "1", justifyContent: "space-evenly" }}>
                                 <div className="reset-password-input">
-                                    <label htmlFor="email">Email Address:</label>
+                                    <label htmlFor="email">Old Password:</label>
                                     <input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        placeholder="Enter your email"
+                                        type="password"
+                                        id="oldPassword"
+                                        name="oldPassword"
+                                        placeholder="Enter your old password"
                                         required
-                                        value={currentTrainer?.email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
                                     />
                                 </div>
                                 <div className="reset-password-input">
@@ -502,7 +516,7 @@ export default function TrainerDashboard() {
                                 </div>
                             </form>
                         </div>
-                    ) : <div className="trainer-profile">
+                    ) : currentTrainer && <div className="trainer-profile">
                         <h2 className="trainer-profile-top">
                             Trainer&apos;s Details
                             <X style={{
@@ -511,28 +525,28 @@ export default function TrainerDashboard() {
                         </h2>
                         <div className="trainer-profile-bottom">
                             <div className="trainer-detail">
-                                <strong>Name:</strong> {currentTrainer?.name || "N/A"}
+                                <strong>Name:</strong> {currentTrainer?.name}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Email:</strong> {currentTrainer?.email || "N/A"}
+                                <strong>Email:</strong> {currentTrainer?.email}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Age:</strong> {currentTrainer?.age || "N/A"}
+                                <strong>Age:</strong> {currentTrainer?.age}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Gender:</strong> {currentTrainer?.gender || "N/A"}
+                                <strong>Gender:</strong> {currentTrainer?.gender}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Address:</strong> {currentTrainer?.address || "N/A"}
+                                <strong>Address:</strong> {currentTrainer?.address}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Phone:</strong> {currentTrainer?.phone || "N/A"}
+                                <strong>Phone:</strong> {currentTrainer?.phone}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Specialization:</strong> {currentTrainer?.specialization?.join(", ") || "N/A"}
+                                <strong>Specialization:</strong> {currentTrainer?.specialization?.join(", ")}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Skills:</strong> {currentTrainer?.skills?.join(", ") || "N/A"}
+                                <strong>Skills:</strong> {currentTrainer?.skills?.join(", ")}
                             </div>
                             <div className="trainer-detail">
                                 <strong>Programs Assigned:</strong> {currentTrainer?.programsAssigned?.length || 0}

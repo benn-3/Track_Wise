@@ -181,5 +181,41 @@ const markAttendance = async (req, res) => {
 
 
 
+const resetPassword = async (req, res) => {
+  try {
+    const { email, trainerId, newPassword, oldPassword } = req.body;
 
-module.exports = { markAttendance, trainerLogin, getTrainer, getTrainerData, markTaskCompleted };
+    if (!email || !trainerId || !newPassword || !oldPassword) {
+      return res.status(400).json({ success: false, message: "Please provide all required fields" });
+    }
+
+
+    const trainer = await Trainer.findOne({ email });
+    if (!trainer) {
+      return res.status(404).json({ success: false, message: "Trainer not found" });
+    }
+
+
+    const isMatch = await bcrypt.compare(oldPassword, trainer.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Old password is incorrect" });
+    }
+
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+
+    trainer.password = hashedPassword;
+    await trainer.save();
+
+    return res.status(200).json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return res.status(500).json({ success: false, message: "Server error. Please try again later." });
+  }
+};
+
+
+
+
+module.exports = { markAttendance, trainerLogin, getTrainer, getTrainerData, markTaskCompleted, resetPassword };

@@ -95,7 +95,30 @@ export const markAttendance = async (token, trainerId, attendanceData, dispatch)
         })
         if (response.status == 200) {
             await handleGetTrainerData(token, trainerId, dispatch)
-             getTrainer(token,trainerId,dispatch)
+            getTrainer(token, trainerId, dispatch)
+            return response.data
+        }
+        else {
+            return response.data
+        }
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+export const resetPasswordHandle = async (token, email, oldPassword, newPassword, trainerId, dispatch) => {
+    console.log(email, oldPassword, newPassword, trainerId)
+    try {
+        const response = await axios.post(`${API_URL}/reset-password`, {
+            email,
+            newPassword,
+            trainerId,
+            oldPassword
+        })
+        if (response.status == 200) {
+            getTrainer(token, trainerId, dispatch)
+            handleGetTrainerData(token, trainerId, dispatch)
             return response.data
         }
         else {

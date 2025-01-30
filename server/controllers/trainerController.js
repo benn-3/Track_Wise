@@ -129,8 +129,12 @@ const markTaskCompleted = async (req, res) => {
 const markAttendance = async (req, res) => {
   const { trainerId, attendanceData } = req.body;
 
+  console.log(attendanceData);
+
   if (!trainerId || !attendanceData || !attendanceData.date || !attendanceData.status) {
-    return res.status(400).json({ error: 'Trainer ID and complete attendance data (date, status) are required.' });
+    return res
+      .status(400)
+      .json({ error: 'Trainer ID and complete attendance data (date, status) are required.' });
   }
 
   try {
@@ -139,32 +143,41 @@ const markAttendance = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Trainer not found.' });
     }
 
-    const existingAttendance = trainer.attendance.find(
+    const existingAttendanceIndex = trainer.attendance.findIndex(
       (entry) => new Date(entry.date).toDateString() === new Date(attendanceData.date).toDateString()
     );
 
-    if (existingAttendance) {
-      return res.status(400).json({ success: false, error: 'Attendance for this date is already marked.' });
+    
+    if (existingAttendanceIndex !== -1) {
+      trainer.attendance[existingAttendanceIndex].status = attendanceData.status; 
+      await trainer.save();
+      return res.status(200).json({
+        success: true,
+        message: 'Attendance updated successfully.',
+        trainer,
+      });
     }
 
+    
     const attendanceDate = new Date(attendanceData.date);
-
 
     const nineAM = new Date(attendanceDate);
     nineAM.setHours(9, 0, 0, 0);
     const tenAM = new Date(attendanceDate);
     tenAM.setHours(10, 0, 0, 0);
 
-
-    if (attendanceDate < nineAM) {
-      attendanceData.status = "Present";
-    } else if (attendanceDate >= nineAM && attendanceDate < tenAM) {
-      attendanceData.status = "Late";
-    } else {
-      attendanceData.status = "Absent";
+    if (!attendanceData.status) {
+      
+      if (attendanceDate < nineAM) {
+        attendanceData.status = 'Present';
+      } else if (attendanceDate >= nineAM && attendanceDate < tenAM) {
+        attendanceData.status = 'Late';
+      } else {
+        attendanceData.status = 'Absent';
+      }
     }
 
-
+    
     trainer.attendance.push({
       date: attendanceDate,
       status: attendanceData.status,
@@ -172,10 +185,14 @@ const markAttendance = async (req, res) => {
 
     await trainer.save();
 
-    return res.status(200).json({ success: true, message: 'Attendance marked successfully.', trainer });
+    return res
+      .status(200)
+      .json({ success: true, message: 'Attendance marked successfully.', trainer });
   } catch (error) {
     console.error('Error marking attendance:', error);
-    return res.status(500).json({ success: false, error: 'An error occurred while marking attendance.' });
+    return res
+      .status(500)
+      .json({ success: false, error: 'An error occurred while marking attendance.' });
   }
 };
 

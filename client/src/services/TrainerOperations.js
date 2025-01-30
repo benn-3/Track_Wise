@@ -1,20 +1,19 @@
 import axios from "axios";
 import { setTrainerData } from "../redux/actions/trainerActions";
 import { setTrainer } from "../redux/actions/authActions";
-import store from "../redux/store"
+import store from "../redux/store";
 
 const getIP = () => {
-    const states = store.getState()
-    const ip = states.auth.IP
-    console.log(ip)
-    return ip
-}
+    const states = store.getState();
+    const ip = states.auth.IP;
+    console.log(ip);
+    return ip;
+};
 
 const API_URL = `${getIP()}:7000/api/trainer`;
 
 export const getTrainer = (token, trainerId, dispatch) => {
-
-    console.log("getting trainer")
+    console.log("getting trainer");
 
     const fetchTrainerData = async () => {
         try {
@@ -34,98 +33,108 @@ export const getTrainer = (token, trainerId, dispatch) => {
         }
     };
 
-
     fetchTrainerData();
 };
 
-
-
 export const handleTrainerLogin = async (token, formData) => {
     try {
-        const response = await axios.post(`${API_URL}/trainer-login`, {
-            formData
-        });
+        const response = await axios.post(
+            `${API_URL}/trainer-login`,
+            { formData },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
         return response.data;
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
-}
+};
 
 export const handleGetTrainerData = async (token, trainerId, dispatch) => {
-    console.log("getting trainer data")
+    console.log("getting trainer data");
     try {
-        const response = await axios.get(`${API_URL}/trainer-data?trainerId=${trainerId}`)
+        const response = await axios.get(`${API_URL}/trainer-data?trainerId=${trainerId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
         if (response.data.success) {
             let trainerData = response.data.trainer;
-            dispatch(setTrainerData(trainerData))
-
+            dispatch(setTrainerData(trainerData));
+        } else {
+            dispatch(setTrainerData([]));
         }
-        else {
-            dispatch(setTrainerData([]))
-        }
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
-}
+};
 
 export const handleMarkAsComplete = async (token, programId, trainerId, taskId, dispatch) => {
     try {
-        const response = await axios.post(`${API_URL}/mark-task-completed`, {
-            programId,
-            trainerId,
-            taskId
-        })
-        await handleGetTrainerData(token, trainerId, dispatch)
-        return response.data
+        const response = await axios.post(
+            `${API_URL}/mark-task-completed`,
+            { programId, trainerId, taskId },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        await handleGetTrainerData(token, trainerId, dispatch);
+        return response.data;
+    } catch (err) {
+        console.log(err);
     }
-    catch (err) {
-        console.log(err)
-    }
-}
+};
 
 export const markAttendance = async (token, trainerId, attendanceData, dispatch) => {
     try {
-        const response = await axios.post(`${API_URL}/mark-attendance`, {
-            trainerId,
-            attendanceData
-        })
+        const response = await axios.post(
+            `${API_URL}/mark-attendance`,
+            { trainerId, attendanceData },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
         if (response.status == 200) {
-            await handleGetTrainerData(token, trainerId, dispatch)
-            getTrainer(token, trainerId, dispatch)
-            return response.data
+            await handleGetTrainerData(token, trainerId, dispatch);
+            getTrainer(token, trainerId, dispatch);
+            return response.data;
+        } else {
+            return response.data;
         }
-        else {
-            return response.data
-        }
+    } catch (err) {
+        console.log(err);
     }
-    catch (err) {
-        console.log(err)
-    }
-}
+};
 
 export const resetPasswordHandle = async (token, email, oldPassword, newPassword, trainerId, dispatch) => {
-    console.log(email, oldPassword, newPassword, trainerId)
+    console.log(email, oldPassword, newPassword, trainerId);
     try {
-        const response = await axios.post(`${API_URL}/reset-password`, {
-            email,
-            newPassword,
-            trainerId,
-            oldPassword
-        })
+        const response = await axios.post(
+            `${API_URL}/reset-password`,
+            { email, newPassword, trainerId, oldPassword },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
         if (response.status == 200) {
-            getTrainer(token, trainerId, dispatch)
-            handleGetTrainerData(token, trainerId, dispatch)
-            return response.data
+            getTrainer(token, trainerId, dispatch);
+            handleGetTrainerData(token, trainerId, dispatch);
+            return response.data;
+        } else {
+            return response.data;
         }
-        else {
-            return response.data
-        }
+    } catch (err) {
+        console.log(err);
     }
-    catch (err) {
-        console.log(err)
-    }
-}
+};

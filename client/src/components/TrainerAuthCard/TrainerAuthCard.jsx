@@ -12,8 +12,9 @@ export default function TrainerAuthCard() {
     const token = localStorage.getItem('Token')
 
     const handleSignin = async () => {
+
         const response = await handleTrainerLogin(token, formData)
-        if (response.success) {
+        if (response?.success) {
             showToast("Login Successful", "success");
             localStorage.setItem("Token", response.token)
             window.location.href = "/trainer"

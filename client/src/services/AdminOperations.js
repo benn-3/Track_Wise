@@ -1,13 +1,13 @@
 import axios from "axios";
 import { setAdmin } from "../redux/actions/authActions";
 import { setPrograms, setTrainers } from "../redux/actions/adminActions";
-import store from "../redux/store"
+import store from "../redux/store";
 
 const getIP = () => {
-    const states = store.getState()
-    const ip = states.auth.IP
-    return ip
-}
+    const states = store.getState();
+    const ip = states.auth.IP;
+    return ip;
+};
 
 const API_URL = `${getIP()}:7000/api/admin`;
 
@@ -35,7 +35,6 @@ export const getAdmin = async (token, adminId, dispatch) => {
     }
 };
 
-
 export const adminSignup = async (signupData) => {
     try {
         const response = await axios.post(`${API_URL}/admin-signup`, signupData);
@@ -44,11 +43,10 @@ export const adminSignup = async (signupData) => {
         }
     } catch (error) {
         console.error("Signup error:", error.response ? error.response.data : error.message);
-        if (error.response && error.response.data) {
-            return { success: false, message: error.response.data.message || 'Something went wrong. Please try again later.' };
-        } else {
-            return { success: false, message: 'Network error or timeout. Please check your connection and try again.' };
-        }
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Something went wrong. Please try again later.',
+        };
     }
 };
 
@@ -61,17 +59,20 @@ export const adminSignin = async (loginData) => {
         }
     } catch (error) {
         console.error("Signin error:", error.response ? error.response.data : error.message);
-        if (error.response && error.response.data) {
-            return { success: false, message: error.response.data.message || 'Something went wrong. Please try again later.' };
-        } else {
-            return { success: false, message: 'Network error or timeout. Please check your connection and try again.' };
-        }
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Something went wrong. Please try again later.',
+        };
     }
 };
 
-export const handleAddTrainer = async (formData) => {
+export const handleAddTrainer = async (token, formData) => {
     try {
-        const response = await axios.post(`${API_URL}/add-trainer`, formData);
+        const response = await axios.post(`${API_URL}/add-trainer`, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error("Error adding trainer:", error);
@@ -81,7 +82,11 @@ export const handleAddTrainer = async (formData) => {
 
 export const getAllTrainers = async (token, dispatch) => {
     try {
-        const response = await axios.get(`${API_URL}/get-all-trainers`);
+        const response = await axios.get(`${API_URL}/get-all-trainers`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         if (response.status === 200) {
             dispatch(setTrainers(response.data.trainers));
         } else {
@@ -96,48 +101,50 @@ export const getAllTrainers = async (token, dispatch) => {
 
 export const editTrainer = async (token, trainerId, formData) => {
     try {
-        const response = await axios.put(`${API_URL}/edit-trainer`, {
-            trainerId,
-            formData
+        const response = await axios.put(`${API_URL}/edit-trainer`, { trainerId, formData }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
         return response.data;
-    }
-    catch (err) {
+    } catch (err) {
         console.error('Error editing trainer:', err.message);
     }
-}
-
+};
 
 export const deleteTrainer = async (token, trainerId) => {
-    console.log(trainerId)
     try {
-        const response = await axios.delete(`${API_URL}/delete-trainer?trainerId=${trainerId}`);
-        return response.data;
-    }
-    catch (err) {
-        console.error('Error deleting trainer:', err.message);
-    }
-
-}
-
-export const addProgram = async (token, formData) => {
-    console.log(formData)
-    try {
-        const response = await axios.post(`${API_URL}/add-program`, {
-            formData
+        const response = await axios.delete(`${API_URL}/delete-trainer?trainerId=${trainerId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
         return response.data;
+    } catch (err) {
+        console.error('Error deleting trainer:', err.message);
     }
-    catch (err) {
+};
+
+export const addProgram = async (token, formData) => {
+    try {
+        const response = await axios.post(`${API_URL}/add-program`, { formData }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (err) {
         console.error('Error adding program:', err.message);
     }
-
-
-}
+};
 
 export const getAllPrograms = async (token, dispatch) => {
     try {
-        const response = await axios.get(`${API_URL}/get-all-programs`);
+        const response = await axios.get(`${API_URL}/get-all-programs`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         if (response.status === 200) {
             let programs = response.data.programs;
             dispatch(setPrograms(programs));
@@ -151,75 +158,66 @@ export const getAllPrograms = async (token, dispatch) => {
 
 export const deleteTask = async (token, programId, taskId, dispatch) => {
     try {
-        const response = await axios.delete(`${API_URL}/delete-task?programId=${programId}&taskId=${taskId}`);
-        console.log(response.data)
-        if (response.status == 200) {
-            await getAllPrograms(token, dispatch)
+        const response = await axios.delete(`${API_URL}/delete-task?programId=${programId}&taskId=${taskId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        if (response.status === 200) {
+            await getAllPrograms(token, dispatch);
             return response.data;
         }
-        else {
-            return response.data;
-        }
-    }
-    catch (err) {
+    } catch (err) {
         console.error('Error deleting task:', err.message);
     }
-}
-
+};
 
 export const addTask = async (token, programId, newTaskList, dispatch) => {
     try {
-        const response = await axios.post(`${API_URL}/add-task`, {
-            programId,
-            newTaskList
+        const response = await axios.post(`${API_URL}/add-task`, { programId, newTaskList }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
-
         if (response.status === 200) {
-            await getAllPrograms(token, dispatch)
+            await getAllPrograms(token, dispatch);
             return response.data;
         }
-
-    }
-    catch (err) {
+    } catch (err) {
         console.error('Error adding task:', err.message);
     }
-}
+};
 
 export const handleProgramEdit = async (token, programId, changes, dispatch) => {
     try {
-        const response = await axios.post(`${API_URL}/edit-program`, {
-            programId,
-            changes
-        })
+        const response = await axios.post(`${API_URL}/edit-program`, { programId, changes }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         if (response.status === 200) {
-            await getAllPrograms(token, dispatch)
-            await getAllTrainers(token, dispatch)
-            return response.data
+            await getAllPrograms(token, dispatch);
+            await getAllTrainers(token, dispatch);
+            return response.data;
         }
-        else {
-            return response.data
-        }
-
     } catch (err) {
         console.error('Error editing program:', err.message);
     }
-}
+};
 
 export const handleDelete = async (token, programId, dispatch) => {
-    console.log(programId)
     try {
         const response = await axios.delete(`${API_URL}/delete-program`, {
-            data: { programId }
-        })
+            data: { programId },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         if (response.status === 200) {
-            await getAllPrograms(token, dispatch)
-            return response.data
+            await getAllPrograms(token, dispatch);
+            return response.data;
         }
-        else {
-            return response.data
-        }
-    }
-    catch (err) {
+    } catch (err) {
         console.error('Error deleting program:', err.message);
     }
-}
+};

@@ -15,6 +15,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onAddTrainerSu
         address: '',
         skills: []
     });
+    const token = localStorage.getItem("Token")
 
     const [errors, setErrors] = useState({});
     const [skillInput, setSkillInput] = useState('');
@@ -87,7 +88,7 @@ export default function AddTrainerPanel({ isOpen, onRequestClose, onAddTrainerSu
         console.log('Saving Trainer Data:', formData);
 
         try {
-            const response = await handleAddTrainer(formData);
+            const response = await handleAddTrainer(token,formData);
 
             if (response.success) {
                 onAddTrainerSuccess()

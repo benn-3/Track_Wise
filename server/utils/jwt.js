@@ -26,8 +26,6 @@ const verifyToken = async (req, res) => {
       });
     });
 
-
-
     return res.status(200).json({ success: true, message: "Token is valid", decoded });
 
   } catch (error) {
@@ -35,6 +33,8 @@ const verifyToken = async (req, res) => {
     return res.status(401).json({ success: false, message: "Invalid or expired token" });
   }
 };
+
+
 
 const checkToken = async (req, res, next) => {
   try {

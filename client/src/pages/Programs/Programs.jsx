@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllPrograms, getAllTrainers } from "../../services/AdminOperations";
 import ProgramCard from "../../components/ProgramCard/ProgramCard";
 import ManageProgramCard from "../../components/ManageProgramCard/ManageProgramCard";
-import { saveAs } from "file-saver"; 
 
 export default function Programs() {
     const [loading, setLoading] = useState(true);

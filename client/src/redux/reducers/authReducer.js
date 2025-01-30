@@ -6,7 +6,7 @@ const initialState = {
     isAuthenticated: false,
     role: null,
     id: null,
-    IP:"http://192.168.1.5"
+    IP:"http://172.17.0.26"
 }
 
 export default function authReducer(state = initialState, action) {

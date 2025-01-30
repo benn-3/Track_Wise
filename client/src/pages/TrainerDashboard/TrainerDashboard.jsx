@@ -23,6 +23,7 @@ export default function TrainerDashboard() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [oldPassword, setOldPassword] = useState("");
+    const [isAbsent, setIsAbsent] = useState(false);
 
 
     useEffect(() => {
@@ -58,6 +59,41 @@ export default function TrainerDashboard() {
             }
         }
     }, [currentTrainer]);
+
+    useEffect(() => {
+        if (currentTrainer) {
+            const attendanceArray = currentTrainer?.attendance;
+
+
+            console.log("Current Trainer:", currentTrainer);
+
+
+            if (Array.isArray(attendanceArray) && attendanceArray.length > 0) {
+                const lastAttendance = attendanceArray[attendanceArray.length - 1];
+
+
+                if (lastAttendance && lastAttendance.date) {
+                    const todayDate = new Date().toDateString();
+                    const lastAttendanceDate = new Date(lastAttendance.date).toDateString();
+
+
+                    if (todayDate === lastAttendanceDate && lastAttendance.status === "Absent") {
+                        setIsAbsent(true);
+                        console.log("Absent today");
+                    } else {
+                        setIsAbsent(false);
+                        console.log("Not absent today");
+                    }
+                } else {
+                    console.error("Invalid lastAttendance or missing date:", lastAttendance);
+                }
+            } else {
+                console.log("Attendance array is empty or not valid:", attendanceArray);
+            }
+        }
+    }, [currentTrainer]);
+
+
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -332,12 +368,20 @@ export default function TrainerDashboard() {
                                             </span>
                                         </div>
                                     </div>
-                                    {isTaskTodayAndNotCompleted(task) && (
-                                        <div className="trainer-dashboard-task-action" onClick={() => handleTaskCompletion(task)}>
+                                    {isTaskTodayAndNotCompleted(task) && !isAbsent && (
+                                        <div
+                                            className="trainer-dashboard-task-action"
+                                            onClick={() => handleTaskCompletion(task)}
+                                        >
                                             Mark as Completed
-                                            <CheckCheck style={{ marginLeft: "1rem" }} size={"1.45rem"} color="#7A76DD" />
+                                            <CheckCheck
+                                                style={{ marginLeft: "1rem" }}
+                                                size={"1.45rem"}
+                                                color="#7A76DD"
+                                            />
                                         </div>
                                     )}
+
                                 </div>
                             ))
                         ) : (
@@ -511,7 +555,8 @@ export default function TrainerDashboard() {
                                         padding: "0.5rem 0.7rem",
                                         color: "white",
                                         borderRadius: "8px",
-                                        fontWeight: "500"
+                                        fontWeight: "500",
+                                        cursor: "pointer"
                                     }} type="submit">Reset Password</button>
                                 </div>
                             </form>
@@ -525,31 +570,31 @@ export default function TrainerDashboard() {
                         </h2>
                         <div className="trainer-profile-bottom">
                             <div className="trainer-detail">
-                                <strong>Name:</strong> {currentTrainer?.name}
+                                <strong>Name:</strong> {currentTrainer.name}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Email:</strong> {currentTrainer?.email}
+                                <strong>Email:</strong> {currentTrainer.email}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Age:</strong> {currentTrainer?.age}
+                                <strong>Age:</strong> {currentTrainer.age}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Gender:</strong> {currentTrainer?.gender}
+                                <strong>Gender:</strong> {currentTrainer.gender}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Address:</strong> {currentTrainer?.address}
+                                <strong>Address:</strong> {currentTrainer.address}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Phone:</strong> {currentTrainer?.phone}
+                                <strong>Phone:</strong> {currentTrainer.phone}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Specialization:</strong> {currentTrainer?.specialization?.join(", ")}
+                                <strong>Specialization:</strong> {currentTrainer.specialization?.join(", ")}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Skills:</strong> {currentTrainer?.skills?.join(", ")}
+                                <strong>Skills:</strong> {currentTrainer.skills?.join(", ")}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Programs Assigned:</strong> {currentTrainer?.programsAssigned?.length || 0}
+                                <strong>Programs Assigned:</strong> {currentTrainer.programsAssigned?.length || 0}
                             </div>
                         </div>
                         <div style={{

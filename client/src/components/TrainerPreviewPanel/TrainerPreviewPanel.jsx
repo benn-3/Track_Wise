@@ -7,7 +7,7 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
     const [formData, setFormData] = useState(trainer);
     const [isClosing, setIsClosing] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('Token');
     const [newSkill, setNewSkill] = useState("");
 
     useEffect(() => {
@@ -66,7 +66,7 @@ export default function TrainerPreviewPanel({ isOpen, onRequestClose, trainer, o
                 ...formData,
                 skills: [...formData.skills, newSkill]
             });
-            setNewSkill(""); // clear input after adding skill
+            setNewSkill(""); 
         }
     };
 

@@ -649,9 +649,6 @@ cron.schedule('* * * * * *', async () => {
     try {
         const programs = await Program.find({ programStatus: { $ne: 'Cancelled' } });
 
-        if (programs.length === 0) {
-            console.log('No programs to update.');
-        }
 
         programs.forEach(async (program) => {
             const startDate = moment(program.startDate);

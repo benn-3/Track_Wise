@@ -114,10 +114,10 @@ const adminSignin = async (req, res) => {
 
 const addTrainer = async (req, res) => {
     try {
-        const { name, phone, age, gender, specialization, skills, address } = req.body;
+        const { name,email, phone, age, gender, specialization, skills, address } = req.body;
 
 
-        if (!name || !phone || !age || !gender || !specialization || !address || !skills) {
+        if (!name || !email || !phone || !age || !gender || !specialization || !address || !skills) {
             console.log("Validation failed: Missing required fields.");
             return res.status(400).json({
                 success: false,
@@ -160,6 +160,7 @@ const addTrainer = async (req, res) => {
         const trainer = await Trainer.create({
             trainerId,
             name,
+            email,
             phone,
             age,
             gender,
@@ -183,6 +184,7 @@ const addTrainer = async (req, res) => {
                 specialization: trainer.specialization,
                 skills: trainer.skills,
                 address: trainer.address,
+                email:trainer.email
             },
         });
     } catch (error) {

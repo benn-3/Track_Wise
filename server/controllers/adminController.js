@@ -114,9 +114,8 @@ const adminSignin = async (req, res) => {
 
 const addTrainer = async (req, res) => {
     try {
+        const { name, phone, age, gender, specialization, skills, address } = req.body;
 
-
-        const { name, phone, email, age, gender, specialization, skills, address } = req.body;
 
         if (!name || !phone || !age || !gender || !specialization || !address || !skills) {
             console.log("Validation failed: Missing required fields.");
@@ -126,8 +125,8 @@ const addTrainer = async (req, res) => {
             });
         }
 
-        const phoneRegex = /^[0-9]{10}$/;
 
+        const phoneRegex = /^[0-9]{10}$/;
         if (!phoneRegex.test(phone)) {
             console.log("Validation failed: Invalid phone number.");
             return res.status(400).json({
@@ -137,15 +136,9 @@ const addTrainer = async (req, res) => {
         }
 
 
-        const randomPassword = crypto.randomBytes(8).toString("hex");
-        const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
-        const existingTrainer = await Trainer.findOne({
-            $or: [{ email: email }],
-        });
-
+        const existingTrainer = await Trainer.findOne({ phone });
         if (existingTrainer) {
-            console.log("Trainer already exists with provided email or phone.");
+            console.log("Trainer already exists with the provided phone number.");
             return res.status(400).json({
                 success: false,
                 message: "A trainer with the provided phone number already exists.",
@@ -158,13 +151,15 @@ const addTrainer = async (req, res) => {
             { $inc: { sequence_value: 1 } },
             { new: true, upsert: true }
         );
-
         const trainerId = counter.sequence_value;
+
+
+        const hashedPassword = await bcrypt.hash(phone, 10);
+
 
         const trainer = await Trainer.create({
             trainerId,
             name,
-            email: email,
             phone,
             age,
             gender,
@@ -174,35 +169,14 @@ const addTrainer = async (req, res) => {
             password: hashedPassword,
         });
 
-
-        const emailContent = {
-            to: email,
-            from: "dharanish816@gmail.com",
-            subject: "Your Trainer Portal Credentials",
-            text: `Hello ${name},\n\nYour account has been created successfully.\n\nHere are your credentials:\n\nEmail: ${email}\nPassword: ${randomPassword}\n\nPlease log in and change your password immediately.\n\nThank you!`,
-            html: `<p>Hello <b>${name}</b>,</p>
-                   <p>Your account has been created successfully.</p>
-                   <p>Here are your credentials:</p>
-                   <ul>
-                     <li><b>Email:</b> ${email}</li>
-                     <li><b>Password:</b> ${randomPassword}</li>
-                   </ul> 
-                   <p>Please log in and change your password immediately.</p>
-                   <p>Thank you!</p>`,
-        };
-
-
-
-        await sgMail.send(emailContent);
-        console.log("Email sent successfully.");
+        console.log("Trainer added successfully.");
 
         return res.status(201).json({
             success: true,
-            message: "Trainer added successfully. Credentials sent to the trainer's email.",
+            message: "Trainer added successfully.",
             trainer: {
                 trainerId: trainer.trainerId,
                 name: trainer.name,
-                email: trainer.email,
                 phone: trainer.phone,
                 age: trainer.age,
                 gender: trainer.gender,
@@ -220,6 +194,7 @@ const addTrainer = async (req, res) => {
         });
     }
 };
+
 
 const getAllTrainers = async (req, res) => {
     try {
@@ -530,22 +505,22 @@ const editProgram = async (req, res) => {
             return res.status(404).json({ success: false, message: "Program not found" });
         }
 
-        
-        if (changes.trainerAssigned && changes.trainerAssigned !== program.trainerAssigned.toString()) {
-          
 
-            
+        if (changes.trainerAssigned && changes.trainerAssigned !== program.trainerAssigned.toString()) {
+
+
+
             const oldTrainerId = program.trainerAssigned;
             if (oldTrainerId) {
-             
+
                 const oldTrainer = await Trainer.findById(oldTrainerId);
 
                 if (oldTrainer) {
-                  
 
-                    
+
+
                     if (oldTrainer.programsAssigned && oldTrainer.programsAssigned.length > 0) {
-                      
+
                         await Trainer.updateOne(
                             { _id: oldTrainerId },
                             { $pull: { programsAssigned: programId } }
@@ -559,8 +534,8 @@ const editProgram = async (req, res) => {
                 }
             }
 
-            
-      
+
+
             const newTrainerId = changes.trainerAssigned;
             const newTrainer = await Trainer.findById(newTrainerId);
             if (!newTrainer) {
@@ -577,12 +552,12 @@ const editProgram = async (req, res) => {
             console.log("No changes in trainer assignment detected");
         }
 
-        
+
         const updateData = { ...changes };
         delete updateData.trainerAssigned;
 
         if (Object.keys(updateData).length > 0) {
-      
+
             await program.updateOne({ $set: updateData });
             console.log("Program Updated Successfully:", programId);
         } else {
@@ -642,7 +617,7 @@ const deleteProgram = async (req, res) => {
 console.log('Cron job started. Updating program statuses every second.');
 
 cron.schedule('* * * * * *', async () => {
-    
+
 
     const today = moment().startOf('day');
 

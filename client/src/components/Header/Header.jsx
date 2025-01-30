@@ -1,4 +1,4 @@
-import './Header.css';
+import './header.css';
 import { Bell } from 'lucide-react';
 import ProfileIcon from '../../assets/icons/profile.png';
 import { useEffect, useState } from 'react';

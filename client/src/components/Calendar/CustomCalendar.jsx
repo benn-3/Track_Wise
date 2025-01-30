@@ -2,7 +2,7 @@ import React from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
-import './Calendar.css';
+import './calendar.css';
 
 export default function CustomCalendar({ program, onClose }) {
   return (

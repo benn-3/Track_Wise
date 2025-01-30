@@ -86,8 +86,7 @@ function App() {
             <Routes>
               <Route path="/admin" element={<Dashboard />} />
               <Route path="/trainers" element={<Trainers />} />
-              <Route path="/programs" element={<Programs />} />       
-              <Route path="*" element={<Navigate to={"/admin"} />} />
+              <Route path="/programs" element={<Programs />} />         
               <Route path="*" element={<Navigate to="/admin" />} />
             </Routes>
           </div>

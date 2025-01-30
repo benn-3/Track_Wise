@@ -241,7 +241,7 @@ export default function TrainerDashboard() {
         }
     };
 
-
+    console.log(currentTrainer)
 
     return (
         <div className="trainer-dashboard-container">
@@ -570,31 +570,31 @@ export default function TrainerDashboard() {
                         </h2>
                         <div className="trainer-profile-bottom">
                             <div className="trainer-detail">
-                                <strong>Name:</strong> {currentTrainer.name}
+                                <strong>Name:</strong> {currentTrainer?.name}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Email:</strong> {currentTrainer.email}
+                                <strong>Email:</strong> {currentTrainer?.email}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Age:</strong> {currentTrainer.age}
+                                <strong>Age:</strong> {currentTrainer?.age}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Gender:</strong> {currentTrainer.gender}
+                                <strong>Gender:</strong> {currentTrainer?.gender}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Address:</strong> {currentTrainer.address}
+                                <strong>Address:</strong> {currentTrainer?.address}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Phone:</strong> {currentTrainer.phone}
+                                <strong>Phone:</strong> {currentTrainer?.phone}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Specialization:</strong> {currentTrainer.specialization?.join(", ")}
+                                <strong>Specialization:</strong> {currentTrainer?.specialization?.join(", ")}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Skills:</strong> {currentTrainer.skills?.join(", ")}
+                                <strong>Skills:</strong> {currentTrainer?.skills?.join(", ")}
                             </div>
                             <div className="trainer-detail">
-                                <strong>Programs Assigned:</strong> {currentTrainer.programsAssigned?.length || 0}
+                                <strong>Programs Assigned:</strong> {currentTrainer?.programsAssigned?.length || 0}
                             </div>
                         </div>
                         <div style={{

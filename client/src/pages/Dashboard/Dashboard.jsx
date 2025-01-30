@@ -1,4 +1,4 @@
-import './Dashboard.css';
+import './dashboard.css';
 import { Users, Calendar, CheckSquare, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';

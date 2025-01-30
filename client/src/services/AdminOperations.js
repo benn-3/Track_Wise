@@ -9,7 +9,7 @@ const getIP = () => {
     return ip;
 };
 
-const API_URL = `${getIP()}:7000/api/admin`;
+const API_URL = `${getIP()}/api/admin`;
 
 export const getAdmin = async (token, adminId, dispatch) => {
     if (!adminId) {

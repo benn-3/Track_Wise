@@ -7,7 +7,7 @@ const getIP = () => {
   return ip
 }
 
-const API_URL = `${getIP()}:7000/api/token`;
+const API_URL = `${getIP()}/api/token`;
 
 export const checkTokenIsValid = async (token) => {
   try {

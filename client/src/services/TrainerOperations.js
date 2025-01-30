@@ -10,7 +10,7 @@ const getIP = () => {
     return ip;
 };
 
-const API_URL = `${getIP()}:7000/api/trainer`;
+const API_URL = `${getIP()}/api/trainer`;
 
 export const getTrainer = (token, trainerId, dispatch) => {
     console.log("getting trainer");

@@ -639,9 +639,10 @@ const deleteProgram = async (req, res) => {
     }
 };
 
+console.log('Cron job started. Updating program statuses every second.');
 
 cron.schedule('* * * * * *', async () => {
-    console.log('Cron job started. Updating program statuses every second.');
+    
 
     const today = moment().startOf('day');
 

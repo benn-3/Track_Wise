@@ -436,34 +436,7 @@ const getAllPrograms = async (req, res) => {
 };
 
 
-console.log('Cron job started. Updating program statuses every second.');
 
-cron.schedule('* * * * * *', async () => {
-    const today = moment().startOf('day');
-
-    try {
-
-        const programs = await Program.find({ programStatus: { $ne: 'Cancelled' } });
-
-        programs.forEach(async (program) => {
-            const startDate = moment(program.startDate);
-            const endDate = moment(program.endDate);
-
-
-            if (startDate.isSame(today, 'day') && program.programStatus !== 'Ongoing') {
-                program.programStatus = 'Ongoing';
-                await program.save();
-            }
-
-            else if (endDate.isBefore(today, 'day') && program.programStatus !== 'Completed') {
-                program.programStatus = 'Completed';
-                await program.save();
-            }
-        });
-    } catch (err) {
-        console.error('Error updating program statuses:', err);
-    }
-});
 
 const deleteTask = async (req, res) => {
     const { programId, taskId } = req.query;
@@ -667,6 +640,34 @@ const deleteProgram = async (req, res) => {
 };
 
 
+cron.schedule('* * * * * *', async () => {
+    console.log('Cron job started. Updating program statuses every second.');
+
+    const today = moment().startOf('day');
+
+    try {
+        const programs = await Program.find({ programStatus: { $ne: 'Cancelled' } });
+
+        if (programs.length === 0) {
+            console.log('No programs to update.');
+        }
+
+        programs.forEach(async (program) => {
+            const startDate = moment(program.startDate);
+            const endDate = moment(program.endDate);
+
+            if (startDate.isSame(today, 'day') && program.programStatus !== 'Ongoing') {
+                program.programStatus = 'Ongoing';
+                await program.save();
+            } else if (endDate.isBefore(today, 'day') && program.programStatus !== 'Completed') {
+                program.programStatus = 'Completed';
+                await program.save();
+            }
+        });
+    } catch (err) {
+        console.error('Error updating program statuses:', err);
+    }
+});
 
 
 module.exports = {

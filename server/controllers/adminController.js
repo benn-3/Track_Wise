@@ -195,7 +195,7 @@ const addTrainer = async (req, res) => {
     }
 };
 
-
+ 
 const getAllTrainers = async (req, res) => {
     try {
 

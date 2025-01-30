@@ -223,7 +223,12 @@
 }
 
 .progress-bar {
-  background: linear-gradient(to right, #6d6fef, #4f46e5);
+  background: rgba(138, 96, 234, 1);
+  background: linear-gradient(
+    270deg,
+    rgba(138, 96, 234, 1),
+    rgba(160, 93, 224, 1)
+  );
   height: 8px;
   border-radius: 4px;
   transition: width 2s ease-in-out;

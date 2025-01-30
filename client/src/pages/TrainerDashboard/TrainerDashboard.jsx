@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import "./trainerdashboard.css";
 import { useDispatch, useSelector } from "react-redux";
 import { handleGetTrainerData, handleMarkAsComplete, markAttendance, resetPasswordHandle } from "../../services/TrainerOperations";
-import { Calendar, Clock, Save, AlertCircle, CheckCheck, Check, X, User, LogOut, BookOpenCheck } from "lucide-react";
+import { Calendar, Clock, Save, AlertCircle, CheckCheck, Check, X, User, LogOut, BookOpenCheck, CheckCircle } from "lucide-react";
 import { showToast } from "../../hooks/useToast";
 import CustomCalendar from "../../components/Calendar/CustomCalendar";
 import TrainerProfile from "../../components/TrainerProfile/TrainerProfile";
@@ -111,7 +111,7 @@ export default function TrainerDashboard() {
         const today = new Date().setHours(0, 0, 0, 0);
 
         if (task.completed) {
-            return <Save size="1.5rem" color="green" />;
+            return <CheckCircle size="1.5rem" color="green" />;
         } else if (taskDate === today) {
             return <Clock size="1.5rem" color="blue" />;
         } else if (taskDate > today) {
@@ -277,7 +277,7 @@ export default function TrainerDashboard() {
                                 </span>
                             </span>
                             <span className="trainer-dashboard-day">
-                                Day {completedTasks ? completedTasks + 1 : 0} of {tasks.length}
+                                Day {completedTasks ? completedTasks : 0} of {tasks.length}
                             </span>
                         </div>
                         <div
@@ -562,7 +562,7 @@ export default function TrainerDashboard() {
                                 </div>
                             </form>
                         </div>
-                    ) : <TrainerProfile  setIsTrainerProfile={setIsTrainerProfile} trainer={currentTrainer} />
+                    ) : <TrainerProfile setIsTrainerProfile={setIsTrainerProfile} trainer={currentTrainer} />
                 )
 
             }

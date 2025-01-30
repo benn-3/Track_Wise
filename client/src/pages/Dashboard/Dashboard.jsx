@@ -33,10 +33,10 @@ export default function Dashboard() {
       }
     };
 
-    
+
 
     fetchData();
-  
+
   }, [adminId, token, dispatch]);
 
   const activeTrainers = trainers ? trainers.filter((trainer) =>
@@ -162,24 +162,25 @@ export default function Dashboard() {
             <div className="dashboard-chart-title">Programs Analytics</div>
             <ResponsiveContainer>
               <BarChart
-                data={programs && programs.length > 0
-                  ? programs
-                    .filter(program => program.programStatus === 'Ongoing')
-                    .map(program => {
-                      const totalTasks = program.dailyTasks.length;
-                      const completedTasks = program.dailyTasks.filter(task => task.completed).length;
-                      const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+                data={
+                  programs && programs.length > 0
+                    ? programs
+                      .filter(program => program.programStatus === 'Ongoing')
+                      .map(program => {
+                        const totalTasks = program.dailyTasks.length;
+                        const completedTasks = program.dailyTasks.filter(task => task.completed).length;
+                        const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
-                      return {
-                        name: program.name,
-                        trainerName: program.trainerAssigned ? program.trainerAssigned.name : 'No trainer assigned',
-                        totalTasks: totalTasks,
-                        completedTasks: completedTasks,
-                        completionRate: completionRate,
-                        programStatus: program.programStatus,
-                      };
-                    })
-                  : []
+                        return {
+                          name: program.name,
+                          trainerName: program.trainerAssigned ? program.trainerAssigned.name : 'No trainer assigned',
+                          totalTasks: totalTasks,
+                          completedTasks: completedTasks,
+                          completionRate: completionRate,
+                          programStatus: program.programStatus,
+                        };
+                      })
+                    : []
                 }
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -204,10 +205,12 @@ export default function Dashboard() {
                     );
                   }}
                 />
-                <Bar dataKey="completionRate" fill="#4F46E5" />
+                <Bar
+                  dataKey="completionRate"
+                  fill={"#FF7F3E"}
+                />
               </BarChart>
             </ResponsiveContainer>
-
           </div>
           <div className='dashboard-piechart-container'>
             <div className='dashboard-piechart-title'>Trainer Attendance</div>
@@ -236,7 +239,7 @@ export default function Dashboard() {
               </PieChart>
             </ResponsiveContainer>
 
-    
+
             <div className='attendance-agenda'>
               {attendanceData.map((entry, index) => (
                 <div key={index} className='agenda-item'>
@@ -247,7 +250,7 @@ export default function Dashboard() {
                       height: '1rem',
                       backgroundColor: COLORS[index],
                       marginRight: '10px',
-                      borderRadius:"1000px"
+                      borderRadius: "1000px"
                     }}
                   ></span>
                   {entry.name}

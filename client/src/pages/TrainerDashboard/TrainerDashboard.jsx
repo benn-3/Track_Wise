@@ -5,6 +5,7 @@ import { handleGetTrainerData, handleMarkAsComplete, markAttendance, resetPasswo
 import { Calendar, Clock, Save, AlertCircle, CheckCheck, Check, X, User, LogOut, BookOpenCheck } from "lucide-react";
 import { showToast } from "../../hooks/useToast";
 import CustomCalendar from "../../components/Calendar/CustomCalendar";
+import TrainerProfile from "../../components/TrainerProfile/TrainerProfile";
 
 export default function TrainerDashboard() {
     const dispatch = useDispatch();
@@ -561,56 +562,7 @@ export default function TrainerDashboard() {
                                 </div>
                             </form>
                         </div>
-                    ) : currentTrainer && <div className="trainer-profile">
-                        <h2 className="trainer-profile-top">
-                            Trainer&apos;s Details
-                            <X style={{
-                                cursor: "pointer"
-                            }} size={"1.7rem"} onClick={() => setIsTrainerProfile((prev) => !prev)} />
-                        </h2>
-                        <div className="trainer-profile-bottom">
-                            <div className="trainer-detail">
-                                <strong>Name:</strong> {currentTrainer?.name}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Email:</strong> {currentTrainer?.email}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Age:</strong> {currentTrainer?.age}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Gender:</strong> {currentTrainer?.gender}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Address:</strong> {currentTrainer?.address}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Phone:</strong> {currentTrainer?.phone}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Specialization:</strong> {currentTrainer?.specialization?.join(", ")}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Skills:</strong> {currentTrainer?.skills?.join(", ")}
-                            </div>
-                            <div className="trainer-detail">
-                                <strong>Programs Assigned:</strong> {currentTrainer?.programsAssigned?.length || 0}
-                            </div>
-                        </div>
-                        <div style={{
-                            alignSelf: "flex-end",
-                            backgroundColor: "#8B5DFF",
-                            color: "#fff",
-                            padding: "0.5rem 0.7rem",
-                            borderRadius: "10px",
-                            fontWeight: "600",
-                            cursor: "pointer"
-                        }} onClick={() => [
-                            setIsResetPassword(true)
-                        ]}>
-                            Reset Password
-                        </div>
-                    </div>
+                    ) : <TrainerProfile  setIsTrainerProfile={setIsTrainerProfile} trainer={currentTrainer} />
                 )
 
             }

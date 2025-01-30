@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import { AlertTriangle, Calendar, CheckCircle, Clock, Save, Trash, X } from "lucide-react";
-import "./programCard.css";
+import "./programcard.css";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../hooks/useToast";

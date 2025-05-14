@@ -38,7 +38,7 @@ export const getAdmin = async (token, adminId, dispatch) => {
 export const adminSignup = async (signupData) => {
     try {
         const response = await axios.post(`${API_URL}/admin-signup`, signupData);
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             return { success: true, data: response.data };
         }
     } catch (error) {

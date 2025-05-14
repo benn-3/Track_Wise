@@ -6,7 +6,7 @@ const initialState = {
     isAuthenticated: false,
     role: null,
     id: null,
-    IP:"http://localhost:7000"
+    IP:"https://track-wise.onrender.com"
 }
 
 export default function authReducer(state = initialState, action) {

@@ -1,7 +1,3 @@
-Here’s a drafted README file for your **Track_Wise** repository based on the information available:
-
----
-
 # Track_Wise
 
 Track_Wise is a comprehensive training management system designed to streamline the creation, management, and tracking of training programs and trainer assignments. It offers a user-friendly interface for admins and trainers to collaborate efficiently and monitor program progress.
